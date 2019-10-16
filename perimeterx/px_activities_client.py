@@ -51,7 +51,7 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
         }
 
         if len(detail.keys()) > 0:
-            _details = dict(_details.items() | detail.items())
+            _details = dict(list(_details.items()) + list(detail.items()))
 
         data = {
             'type': activity_type,

@@ -153,8 +153,6 @@ def prepare_risk_body(ctx, config):
         body['additional']['px_cookie'] = ctx.decoded_cookie
 
 
-    logger.debug("risk body {}".format(body))
-
     return body
 
 

@@ -10,7 +10,7 @@ from time import time
 from Crypto.Cipher import AES
 
 from perimeterx import px_enc_utils
-from perimeterx import px_constants
+from perimeterx.px_constants import *
 
 
 class PxCookie(object):
@@ -28,15 +28,15 @@ class PxCookie(object):
             return None
 
         px_cookie_keys = px_cookies.keys()
-        px_cookie_keys.sort(reverse=True)
+        sorted(px_cookie_keys, reverse=True)
         for prefix in px_cookie_keys:
             if prefix == PREFIX_PX_TOKEN_V1 or prefix == PREFIX_PX_COOKIE_V1:
                 self._logger.debug('Cookie/Token V1 found, evaluating..')
-                from px_cookie_v1 import PxCookieV1
+                from perimeterx.px_cookie_v1 import PxCookieV1
                 return prefix, PxCookieV1(self._config, px_cookies[prefix])
             if prefix == PREFIX_PX_TOKEN_V3 or prefix == PREFIX_PX_COOKIE_V3:
                 self._logger.debug('Cookie/Token V3 found, evaluating..')
-                from px_cookie_v3 import PxCookieV3
+                from perimeterx.px_cookie_v3 import PxCookieV3
                 ua = ''
                 if prefix == PREFIX_PX_COOKIE_V3:
                     ua = user_agent
@@ -98,7 +98,7 @@ class PxCookie(object):
         while len(dkey) < dklen:
             prev = prf(salt + struct.pack(b'>I', loop))
             rkey = int(binascii.hexlify(prev), 16)
-            for i in xrange(iterations - 1):
+            for i in range(iterations - 1):
                 prev = prf(prev)
                 rkey ^= int(binascii.hexlify(prev), 16)
             loop += 1
@@ -125,7 +125,7 @@ class PxCookie(object):
             key = dk[:32]
             iv = dk[32:]
             cipher = AES.new(key, AES.MODE_CBC, iv)
-            unpad = lambda s: s[0:-ord(s[-1])]
+            unpad = lambda s: s[0:-s[-1]]
             plaintext = unpad(cipher.decrypt(data))
             self._logger.debug('cookie decrypted')
             return plaintext

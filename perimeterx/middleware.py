@@ -3,7 +3,7 @@ import time
 from werkzeug.wrappers import Request
 
 from perimeterx import px_activities_client
-from perimeterx.px_utils import getExpiryDate
+from perimeterx import px_utils
 from perimeterx.px_config import PxConfig
 from perimeterx.px_context import PxContext
 from perimeterx.px_request_verifier import PxRequestVerifier
@@ -53,7 +53,7 @@ class PerimeterX(object):
             return verified_response(environ, pxhd_callback)
 
         except Exception as err:
-            self._config.logger.error("Caught exception, passing request. Exception: {}".format(err))
+            self._config.logger.error("Caught exception, passing request1111. Exception: {}".format(err))
             if context:
                 self.report_pass_traffic(context)
             else:
@@ -72,7 +72,7 @@ class PerimeterX(object):
             ctx = PxContext(request, config)
             return ctx, self._request_verifier.verify_request(ctx, request)
         except Exception as err:
-            logger.error("Caught exception, passing request. Exception: {}".format(err))
+            logger.error("Caught exception222, passing request. Exception: {}".format(err))
             if ctx:
                 self.report_pass_traffic(ctx)
             else:

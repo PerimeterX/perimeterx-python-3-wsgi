@@ -21,9 +21,9 @@ def pbkdf2_hmac(password, salt, iterations, hash_name='sha256', dklen=None):
         raise TypeError(hash_name)
 
     if not isinstance(password, (bytes, bytearray)):
-        password = bytes(buffer(password))
+        password = bytes(memoryview(password.encode('utf-8')))
     if not isinstance(salt, (bytes, bytearray)):
-        salt = bytes(buffer(salt))
+        salt = bytes(memoryview(salt.encode('utf-8')))
 
     # Fast inline HMAC implementation
     inner = hashlib.new(hash_name)
@@ -49,7 +49,7 @@ def pbkdf2_hmac(password, salt, iterations, hash_name='sha256', dklen=None):
     while len(dkey) < dklen:
         prev = prf(salt + struct.pack(b'>I', loop), inner, outer)
         rkey = int(binascii.hexlify(prev), 16)
-        for i in xrange(iterations - 1):
+        for i in range(iterations - 1):
             prev = prf(prev, inner, outer)
             rkey ^= int(binascii.hexlify(prev), 16)
         loop += 1
@@ -89,12 +89,12 @@ def decrypt_cookie(config, raw_cookie):
         key = dk[:32]
         iv = dk[32:]
         cipher = AES.new(key, AES.MODE_CBC, iv)
-        unpad = lambda s: s[0:-ord(s[-1])]
+        unpad = lambda s: s[0:-s[-1]]
         plaintext = unpad(cipher.decrypt(data))
         logger.debug("PxCookie[decrypt_cookie] cookie decrypted")
         return plaintext
     except Exception as e:
-        logger.error('Encryption tool encountered a problem during the decryption process: ' + str(e.message))
+        logger.error('Encryption tool encountered a problem during the decryption process: ' + str(e))
         return False
 
 

@@ -10,7 +10,7 @@ from Crypto.Cipher import AES
 
 def create_hmac(str_to_hmac, config):
     try:
-        return hmac.new(config.cookie_key, str_to_hmac, hashlib.sha256).hexdigest()
+        return hmac.new(config.cookie_key.encode(), str_to_hmac.encode(), hashlib.sha256).hexdigest()
     except Exception:
         config.logger.debug("Failed to calculate hmac")
         return False

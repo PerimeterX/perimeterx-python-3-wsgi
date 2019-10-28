@@ -32,7 +32,7 @@ class TestPxRequestVerifier(unittest.TestCase):
         response = Response("client data")
         with mock.patch('perimeterx.px_proxy.PxProxy.handle_reverse_request', return_value=response):
             response = self.request_handler.verify_request(context, request)
-            self.assertEqual(response.data, "client data")
+            self.assertEqual(response.data.decode("utf-8"), "client data")
 
     def test_verify_static_url(self):
         builder = EnvironBuilder(headers=self.headers, path='/fake.css')

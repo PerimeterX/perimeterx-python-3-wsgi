@@ -51,7 +51,7 @@ class Test_PXProxy(unittest.TestCase):
                  status_code=200, reason='OK')
         px_proxy = PxProxy(self.config)
         status, headers, body = px_proxy.send_reverse_client_request(config=self.config, ctx=context)
-        self.assertEqual(content, body)
+        self.assertEqual(content, body.decode("utf-8"))
 
     @requests_mock.mock()
     def test_send_reverse_captcha_request(self, mock):
@@ -70,7 +70,7 @@ class Test_PXProxy(unittest.TestCase):
             text=content, request_headers=headers, status_code=200, reason='OK')
         px_proxy = PxProxy(self.config)
         status, headers, body = px_proxy.send_reverse_captcha_request(config=self.config, ctx=context)
-        self.assertEqual(content, body)
+        self.assertEqual(content, body.decode("utf-8"))
 
     @requests_mock.mock()
     def test_send_reverse_xhr_request(self, mock):
@@ -89,4 +89,4 @@ class Test_PXProxy(unittest.TestCase):
                   request_headers=headers, status_code=200, reason='OK')
         px_proxy = PxProxy(self.config)
         status, headers, body = px_proxy.send_reverse_xhr_request(config=self.config, ctx=context, body=content)
-        self.assertEqual(content, body)
+        self.assertEqual(content, body.decode("utf-8"))

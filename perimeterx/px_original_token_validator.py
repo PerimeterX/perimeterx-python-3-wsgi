@@ -31,6 +31,6 @@ def verify(ctx, config):
         return True
 
     except Exception as e:
-        logger.debug('Could not decrypt original token, exception was thrown, decryption failed. Error: {}'.format(e.message))
+        logger.debug('Could not decrypt original token, exception was thrown, decryption failed. Error: {}'.format(e))
         ctx.original_token_error = 'decryption_failed'
         return False

@@ -57,7 +57,7 @@ class PXBlocker(object):
                 'uuid': ctx.uuid,
                 'vid': ctx.vid,
                 'appId': config.app_id,
-                'page': base64.b64encode(blocking_response),
+                'page': str(base64.b64encode(blocking_response.encode())),
                 'collectorURL': 'https://' + config.collector_host
             })
             return page_response, headers, status

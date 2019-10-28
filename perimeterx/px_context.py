@@ -74,7 +74,7 @@ class PxContext(object):
         self._response_pxhd = ''
         self._enforcer_vid_source = enforcer_vid_source
         self._uuid = ''
-        self._query_params = request.query_string
+        self._query_params = request.query_string.decode("utf-8")
         self._sensitive_route = sensitive_route
         self._whitelist_route = whitelist_route
         self._enforced_route = enforced_route

@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/PerimeterX/perimeterx-python-wsgi.svg?branch=master)](https://travis-ci.org/PerimeterX/perimeterx-python-wsgi)
+[![Build Status](https://travis-ci.org/PerimeterX/perimeterx-python-3-wsgi.svg?branch=master)](https://travis-ci.org/PerimeterX/perimeterx-python-3-wsgi)
 
 ![image](https://s.perimeterx.net/logo.png)
 

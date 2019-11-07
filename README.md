@@ -6,8 +6,6 @@
 =============================================================
 > Latest stable version: [v1.0.0](https://pypi.org/project/perimeterx-python-3-wsgi/)
 
-> Latest GAE stable version: [v1.0.0](https://pypi.org/project/perimeterx-python-3-wsgi-gae/)
-
 Table of Contents
 -----------------
 - [Installation](#installation)
@@ -33,56 +31,16 @@ Table of Contents
 
 ## <a name="installation"></a> Installation
 
-### Standalone
-
 * To install the PerimeterX Python middleware in standalone mode, use PIP as follows:
 
 ```python
 pip install perimeterx-python-wsgi
 ```
 
-### Google App Engine
-
-> The following procedure is based on [Google's Third-Party Libraries Guideline](https://cloud.google.com/appengine/docs/standard/python/tools/using-libraries-python-27#installing_a_library)
-
-1. Create a folder to store the PerimeterX Python middleware:
-```bash
-mkdir lib
-```
-
-2. Using PIP, intall the PerimeterX Python middleware with the `-t` flag to have it installed to the folder previouesly created:
-
-```python
-pip install -t lib/ perimeterx-python-wsgi-gae
-```
-
-3. Create a file named `appengine_config.py` in the same folder as your `app.yaml` file with the following content:
-```python
-from google.appengine.ext import vendor
-
-vendor.add('lib')
-```
-
-4. In your `app.yaml` file, request the following libraries:
-```python
-libraries:
-- name: flask
-  version: "0.12"
-- name: pycrypto
-  version: "2.6.1"
-- name: werkzeug
-  version: "0.11.10"
-- name: ssl
-  version: "2.7.11"
-```
-
-5. Deploy the app
-
 ## <a name="upgrading"></a> Upgrading
 To upgrade to the latest PerimeterX Enforcer version, run:
 
-* Standalone: `pip install -U perimeterx-python-3-wsgi`
-* Google App Engine: `pip install -t lib/ -U perimeterx-python-3-wsgi-gae`
+`pip install -U perimeterx-python-3-wsgi`
 
 For more information, contact [PerimeterX Support](support@perimeterx.com).
 

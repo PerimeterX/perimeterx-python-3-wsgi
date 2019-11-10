@@ -1,10 +1,11 @@
 [![Build Status](https://travis-ci.org/PerimeterX/perimeterx-python-3-wsgi.svg?branch=master)](https://travis-ci.org/PerimeterX/perimeterx-python-3-wsgi)
+[![Known Vulnerabilities](https://snyk.io/test/github/PerimeterX/perimeterx-python-3-wsgi/badge.svg)](https://snyk.io/test/github/PerimeterX/perimeterx-python-3-wsgi)
 
 ![image](https://s.perimeterx.net/logo.png)
 
 [PerimeterX](http://www.perimeterx.com) Python 3 Middleware
 =============================================================
-> Latest stable version: [v1.0.0](https://pypi.org/project/perimeterx-python-3-wsgi/)
+> Latest stable version: [v1.0.1](https://pypi.org/project/perimeterx-python-3-wsgi/)
 
 Table of Contents
 -----------------

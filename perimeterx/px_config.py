@@ -63,7 +63,7 @@ class PxConfig(object):
         self.__instantiate_user_defined_handlers(config_dict)
         self._logger = Logger(debug_mode, app_id)
         if testing_mode:
-            self._custom_request_handler = px_testing_mode_handler.testing_mode_handling
+            self._custom_request_handler = testing_mode_handling
 
     @property
     def module_mode(self):

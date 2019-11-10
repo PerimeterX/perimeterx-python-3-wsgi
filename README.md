@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/PerimeterX/perimeterx-python-3-wsgi.svg?branch=master)](https://travis-ci.org/PerimeterX/perimeterx-python-3-wsgi)
 
+[![Known Vulnerabilities](https://snyk.io/test/github/PerimeterX/perimeterx-python-3-wsgi/badge.svg)](https://snyk.io/test/github/PerimeterX/perimeterx-python-3-wsgi)
+
 ![image](https://s.perimeterx.net/logo.png)
 
 [PerimeterX](http://www.perimeterx.com) Python 3 Middleware

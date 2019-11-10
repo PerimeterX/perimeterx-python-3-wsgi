@@ -4,7 +4,7 @@
 
 [PerimeterX](http://www.perimeterx.com) Python 3 Middleware
 =============================================================
-> Latest stable version: [v1.0.0](https://pypi.org/project/perimeterx-python-3-wsgi/)
+> Latest stable version: [v1.0.1](https://pypi.org/project/perimeterx-python-3-wsgi/)
 
 Table of Contents
 -----------------

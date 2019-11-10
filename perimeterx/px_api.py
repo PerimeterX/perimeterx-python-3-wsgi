@@ -43,6 +43,7 @@ def send_risk_request(ctx, config):
         response = px_httpc.send(full_url=config.server_host + px_constants.API_RISK, body=json.dumps(body),
                                  config=config, headers=default_headers, method='POST', raise_error = True)
         if response:
+            config.logger.debug('Risk response: {}'.format(response.content))
             return json.loads(response.content)
         return False
     except requests.exceptions.Timeout:

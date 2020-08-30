@@ -32,7 +32,6 @@ class PerimeterX(object):
         self._config = px_config
         self._request_verifier = PxRequestVerifier(px_config)
         px_activities_client.init_activities_configuration(px_config)
-        px_activities_client.send_enforcer_telemetry_activity(config=px_config, update_reason='initial_config')
 
     def __call__(self, environ, start_response):
         px_activities_client.send_activities_in_thread()
@@ -53,7 +52,7 @@ class PerimeterX(object):
             return verified_response(environ, pxhd_callback)
 
         except Exception as err:
-            self._config.logger.error("Caught exception, passing request1111. Exception: {}".format(err))
+            self._config.logger.error("Caught exception, passing request. Exception: {}".format(err))
             if context:
                 self.report_pass_traffic(context)
             else:
@@ -63,7 +62,7 @@ class PerimeterX(object):
     def verify(self, request):
         config = self.config
         logger = config.logger
-        logger.debug('Starting request verification')
+        logger.debug("Starting request verification {}".format(request.path))
         ctx = None
         try:
             if not config._module_enabled:
@@ -72,7 +71,7 @@ class PerimeterX(object):
             ctx = PxContext(request, config)
             return ctx, self._request_verifier.verify_request(ctx, request)
         except Exception as err:
-            logger.error("Caught exception222, passing request. Exception: {}".format(err))
+            logger.error("Caught exception in verify, passing request. Exception: {}".format(err))
             if ctx:
                 self.report_pass_traffic(ctx)
             else:

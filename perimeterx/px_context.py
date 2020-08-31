@@ -53,7 +53,6 @@ class PxContext(object):
         whitelist_route = sum(1 for _ in filter(lambda whitelist_route_item: uri.startswith(whitelist_route_item), config.whitelist_routes)) > 0
         enforced_route = sum(1 for _ in filter(lambda enforced_route_item: uri.startswith(enforced_route_item), config.enforced_specific_routes)) > 0
         monitored_route = not enforced_route and sum(1 for _ in filter(lambda monitored_route_item: uri.startswith(monitored_route_item), config.monitored_specific_routes)) > 0
-        logger.debug("monitored route: " + str(monitored_route))
         protocol_split = request.environ.get('SERVER_PROTOCOL', '').split('/')
         if protocol_split[0].startswith('HTTP'):
             self._http_protocol = protocol_split[0].lower() + '://'

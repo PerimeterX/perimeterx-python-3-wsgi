@@ -63,7 +63,7 @@ application = PerimeterX(application, px_config)
 - The PerimeterX **Application ID** / **AppId** and PerimeterX **Token** / **Auth Token** can be found in the Portal, in [Applications](https://console.perimeterx.com/botDefender/admin?page=applicationsmgmt).
 - PerimeterX **Risk Cookie** / **Cookie Key** can be found in the portal, in [Policies](https://console.perimeterx.com/botDefender/admin?page=policiesmgmt).
 The Policy from where the **Risk Cookie** / **Cookie Key** is taken must correspond with the Application from where the **Application ID** / **AppId** and PerimeterX **Token** / **Auth Token**.
-For details on how to create a custom Captcha page, refer to the [documentation](https://console.perimeterx.com/docs/server_integration_new.html#custom-captcha-section)
+For details on how to create a custom Captcha page, refer to the [documentation](https://docs.perimeterx.com/pxconsole/docs/customize-challenge-page)
 
 ## <a name="configuration"></a>Optional Configuration
 In addition to the basic installation configuration [above](#required_config), the following configurations options are available:

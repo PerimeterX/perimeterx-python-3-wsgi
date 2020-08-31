@@ -112,6 +112,7 @@ def verify(ctx, config):
 
 def prepare_risk_body(ctx, config):
     logger = config.logger
+    risk_mode  = 'monitor' if config.module_mode == px_constants.MODULE_MODE_MONITORING or ctx.monitored_route else 'active_blocking'
     body = {
         'request': {
             'ip': ctx.ip,
@@ -125,7 +126,7 @@ def prepare_risk_body(ctx, config):
             'http_method': ctx.http_method,
             'http_version': ctx.http_version,
             'module_version': config.module_version,
-            'risk_mode': config.module_mode,
+            'risk_mode': risk_mode,
             'cookie_origin': ctx.cookie_origin
         }
     }

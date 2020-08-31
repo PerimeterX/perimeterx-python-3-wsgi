@@ -54,6 +54,11 @@ class PxConfig(object):
             raise TypeError('enforced_specific_routes must be a list')
         self._enforced_specific_routes = enforced_routes
 
+        monitored_routes = config_dict.get('monitored_specific_routes', [])
+        if not isinstance(monitored_routes, list):
+            raise TypeError('monitored_specific_routes must be a list')
+        self._monitored_specific_routes = monitored_routes
+
         self._block_html = 'BLOCK'
         self._logo_visibility = 'visible' if custom_logo is not None else 'hidden'
         self._telemetry_config = self.__create_telemetry_config()
@@ -204,6 +209,10 @@ class PxConfig(object):
     @property
     def enforced_specific_routes(self):
         return self._enforced_specific_routes
+
+    @property
+    def monitored_specific_routes(self):
+        return self._monitored_specific_routes
 
     def __instantiate_user_defined_handlers(self, config_dict):
         self._custom_request_handler = self.__set_handler('custom_request_handler', config_dict)

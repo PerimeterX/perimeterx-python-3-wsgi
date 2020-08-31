@@ -29,6 +29,7 @@ Table of Contents
     * [Px Disable Request](#px_disable_request)
     * [Test Block Flow on Monitoring Mode](#bypass_monitor_header)
     * [Enforce Specific Routes](#enforce_specific_routes)
+    * [Monitor Specific Routes](#monitor_specific_routes)
 
 ## <a name="installation"></a> Installation
 
@@ -281,16 +282,31 @@ config = {
 }
 ```
 
-#### <a name="enforce_specific_routes"></a> Enforced Specific Routes
+#### <a name="enforce_specific_routes"></a> Enforce Specific Routes
 
 An array of route prefixes that are always validated by the PerimeterX Worker (as opposed to whitelisted routes).
 When this property is set, any route which is not added - will be whitelisted.
 
 **Default:** Empty
- ```python
+
+```python
 config = {
   ...
   enforced_specific_routes: ['/profile']
+  ...
+};
+```
+
+#### <a name="monitor_specific_routes"></a> Monitor Specific Routes
+
+An array of route prefixes that are always set to be in [monitor mode](#module_mode). This configuration is effective only when the module is enabled and in blocking mode.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  monitored_specific_routes: ['/profile']
   ...
 };
 ```

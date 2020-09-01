@@ -59,6 +59,26 @@ class PxConfig(object):
             raise TypeError('monitored_specific_routes must be a list')
         self._monitored_specific_routes = monitored_routes
 
+        sensitive_routes_regex = config_dict.get('sensitive_routes_regex', [])
+        if not isinstance(sensitive_routes_regex, list):
+            raise TypeError('sensitive_routes_regex must be a list')
+        self._sensitive_routes_regex = sensitive_routes_regex
+
+        whitelist_routes_regex = config_dict.get('whitelist_routes_regex', [])
+        if not isinstance(whitelist_routes_regex, list):
+            raise TypeError('whitelist_routes_regex must be a list')
+        self._whitelist_routes_regex = whitelist_routes_regex
+
+        enforced_routes_regex = config_dict.get('enforced_specific_routes_regex', [])
+        if not isinstance(enforced_routes_regex, list):
+            raise TypeError('enforced_specific_routes must be a list')
+        self._enforced_specific_routes_regex = enforced_routes_regex
+
+        monitored_routes_regex = config_dict.get('monitored_specific_routes_regex', [])
+        if not isinstance(monitored_routes_regex, list):
+            raise TypeError('monitored_specific_routes_regex must be a list')
+        self._monitored_specific_routes_regex = monitored_routes_regex
+
         self._block_html = 'BLOCK'
         self._logo_visibility = 'visible' if custom_logo is not None else 'hidden'
         self._telemetry_config = self.__create_telemetry_config()
@@ -171,6 +191,14 @@ class PxConfig(object):
         return self._whitelist_routes
 
     @property
+    def sensitive_routes_regex(self):
+        return self._sensitive_routes_regex
+
+    @property
+    def whitelist_routes_regex(self):
+        return self._whitelist_routes_regex
+
+    @property
     def block_html(self):
         return self._block_html
 
@@ -213,6 +241,14 @@ class PxConfig(object):
     @property
     def monitored_specific_routes(self):
         return self._monitored_specific_routes
+
+    @property
+    def enforced_specific_routes_regex(self):
+        return self._enforced_specific_routes_regex
+
+    @property
+    def monitored_specific_routes_regex(self):
+        return self._monitored_specific_routes_regex
 
     def __instantiate_user_defined_handlers(self, config_dict):
         self._custom_request_handler = self.__set_handler('custom_request_handler', config_dict)

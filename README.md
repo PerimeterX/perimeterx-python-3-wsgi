@@ -20,7 +20,13 @@ Table of Contents
     * [Send Page Activities](#send_page_activities)
     * [Debug Mode](#debug_mode)
     * [Sensitive Routes](#sensitive_routes)
+    * [Sensitive Routes Regex](#sensitive_routes_regex)
     * [Whitelist Routes](#whitelist_routes)
+    * [Whitelist Routes Regex](#whitelist_routes_regex)
+    * [Enforce Specific Routes](#enforce_specific_routes)
+    * [Enforce Specific Routes Regex](#enforce_specific_routes_regex)
+    * [Monitor Specific Routes](#monitor_specific_routes)
+    * [Monitor Specific Routes Regex](#monitor_specific_routes_regex)
     * [Sensitive Headers](#sensitive_headers)
     * [IP Headers](#ip_headers)
     * [First-Party Enabled](#first_party_enabled)
@@ -28,8 +34,6 @@ Table of Contents
     * [Additional Activity Handler](#additional_activity_handler)
     * [Px Disable Request](#px_disable_request)
     * [Test Block Flow on Monitoring Mode](#bypass_monitor_header)
-    * [Enforce Specific Routes](#enforce_specific_routes)
-    * [Monitor Specific Routes](#monitor_specific_routes)
 
 ## <a name="installation"></a> Installation
 
@@ -153,6 +157,21 @@ config = {
   ...
 }
 ```
+
+#### <a name="sensitive_routes_regex"></a> Sensitive Routes Regex
+
+An array of regex patterns that trigger a server call to PerimeterX servers every time the page is viewed, regardless of viewing history.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  sensitive_routes_regex: [r'^/login$', r'^/user']
+  ...
+}
+```
+
 #### <a name="whitelist_routes"></a> Whitelist Routes
 
 An array of route prefixes which will bypass enforcement (will never get scored).
@@ -165,6 +184,78 @@ config = {
   whitelist_routes: ['/about-us', '/careers']
   ...
 }
+```
+
+#### <a name="whitelist_routes_regex"></a> Whitelist Routes Regex
+
+An array of regex patterns which will bypass enforcement (will never get scored).
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  whitelist_routes_regex: [r'^/about']
+  ...
+}
+```
+
+#### <a name="enforce_specific_routes"></a> Enforce Specific Routes
+
+An array of route prefixes that are always validated by the PerimeterX Worker (as opposed to whitelisted routes).
+When this property is set, any route which is not added - will be whitelisted.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  enforced_specific_routes: ['/profile']
+  ...
+};
+```
+
+#### <a name="enforce_specific_routes_regex"></a> Enforce Specific Routes Regex
+
+An array of regex patterns that are always validated by the PerimeterX Worker (as opposed to whitelisted routes).
+When this property is set, any route which is not added - will be whitelisted.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  enforced_specific_routes_regex: [r'^/profile$']
+  ...
+};
+```
+
+#### <a name="monitor_specific_routes"></a> Monitor Specific Routes
+
+An array of route prefixes that are always set to be in [monitor mode](#module_mode). This configuration is effective only when the module is enabled and in blocking mode.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  monitored_specific_routes: ['/profile']
+  ...
+};
+```
+
+#### <a name="monitor_specific_routes_regex"></a> Monitor Specific Routes Regex
+
+An array of regex patterns that are always set to be in [monitor mode](#module_mode). This configuration is effective only when the module is enabled and in blocking mode.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  monitored_specific_routes_regex: [r'^/profile/me$']
+  ...
+};
 ```
 
 #### <a name="sensitive_headers"></a>Sensitive Headers
@@ -280,33 +371,4 @@ config = {
   bypass_monitor_header: 'x-px-block',
   ...
 }
-```
-
-#### <a name="enforce_specific_routes"></a> Enforce Specific Routes
-
-An array of route prefixes that are always validated by the PerimeterX Worker (as opposed to whitelisted routes).
-When this property is set, any route which is not added - will be whitelisted.
-
-**Default:** Empty
-
-```python
-config = {
-  ...
-  enforced_specific_routes: ['/profile']
-  ...
-};
-```
-
-#### <a name="monitor_specific_routes"></a> Monitor Specific Routes
-
-An array of route prefixes that are always set to be in [monitor mode](#module_mode). This configuration is effective only when the module is enabled and in blocking mode.
-
-**Default:** Empty
-
-```python
-config = {
-  ...
-  monitored_specific_routes: ['/profile']
-  ...
-};
 ```

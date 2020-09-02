@@ -47,7 +47,6 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
             'http_method': ctx.http_method,
             'http_version': ctx.http_version,
             'module_version': config.module_version,
-            'risk_mode': config.module_mode,
         }
 
         if len(detail.keys()) > 0:
@@ -84,7 +83,7 @@ def send_block_activity(ctx, config):
         'risk_rtt': ctx.risk_rtt,
         'cookie_origin': ctx.cookie_origin,
         'block_action': ctx.block_action,
-        'simulated_block': config.module_mode is px_constants.MODULE_MODE_MONITORING,
+        'simulated_block': config.module_mode is px_constants.MODULE_MODE_MONITORING or ctx.monitored_route,
     })
 
 

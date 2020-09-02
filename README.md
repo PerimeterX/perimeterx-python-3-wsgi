@@ -1,11 +1,11 @@
 [![Build Status](https://travis-ci.org/PerimeterX/perimeterx-python-3-wsgi.svg?branch=master)](https://travis-ci.org/PerimeterX/perimeterx-python-3-wsgi)
 [![Known Vulnerabilities](https://snyk.io/test/github/PerimeterX/perimeterx-python-3-wsgi/badge.svg)](https://snyk.io/test/github/PerimeterX/perimeterx-python-3-wsgi)
 
-![image](https://s.perimeterx.net/logo.png)
+![image](https://storage.googleapis.com/perimeterx-logos/primary_logo_red_cropped.png)
 
 [PerimeterX](http://www.perimeterx.com) Python 3 Middleware
 =============================================================
-> Latest stable version: [v1.0.1](https://pypi.org/project/perimeterx-python-3-wsgi/)
+> Latest stable version: [v1.1.0](https://pypi.org/project/perimeterx-python-3-wsgi/)
 
 Table of Contents
 -----------------
@@ -20,7 +20,13 @@ Table of Contents
     * [Send Page Activities](#send_page_activities)
     * [Debug Mode](#debug_mode)
     * [Sensitive Routes](#sensitive_routes)
+    * [Sensitive Routes Regex](#sensitive_routes_regex)
     * [Whitelist Routes](#whitelist_routes)
+    * [Whitelist Routes Regex](#whitelist_routes_regex)
+    * [Enforce Specific Routes](#enforce_specific_routes)
+    * [Enforce Specific Routes Regex](#enforce_specific_routes_regex)
+    * [Monitor Specific Routes](#monitor_specific_routes)
+    * [Monitor Specific Routes Regex](#monitor_specific_routes_regex)
     * [Sensitive Headers](#sensitive_headers)
     * [IP Headers](#ip_headers)
     * [First-Party Enabled](#first_party_enabled)
@@ -28,7 +34,6 @@ Table of Contents
     * [Additional Activity Handler](#additional_activity_handler)
     * [Px Disable Request](#px_disable_request)
     * [Test Block Flow on Monitoring Mode](#bypass_monitor_header)
-    * [Enforce Specific Routes](#enforce_specific_routes)
 
 ## <a name="installation"></a> Installation
 
@@ -59,10 +64,10 @@ px_config = {
 application = get_wsgi_application()
 application = PerimeterX(application, px_config)
 ```
-- The PerimeterX **Application ID** / **AppId** and PerimeterX **Token** / **Auth Token** can be found in the Portal, in [Applications](https://console.perimeterx.com/#/app/applicationsmgmt).
-- PerimeterX **Risk Cookie** / **Cookie Key** can be found in the portal, in [Policies](https://console.perimeterx.com/#/app/policiesmgmt).
+- The PerimeterX **Application ID** / **AppId** and PerimeterX **Token** / **Auth Token** can be found in the Portal, in [Applications](https://console.perimeterx.com/botDefender/admin?page=applicationsmgmt).
+- PerimeterX **Risk Cookie** / **Cookie Key** can be found in the portal, in [Policies](https://console.perimeterx.com/botDefender/admin?page=policiesmgmt).
 The Policy from where the **Risk Cookie** / **Cookie Key** is taken must correspond with the Application from where the **Application ID** / **AppId** and PerimeterX **Token** / **Auth Token**.
-For details on how to create a custom Captcha page, refer to the [documentation](https://console.perimeterx.com/docs/server_integration_new.html#custom-captcha-section)
+For details on how to create a custom Captcha page, refer to the [documentation](https://docs.perimeterx.com/pxconsole/docs/customize-challenge-page)
 
 ## <a name="configuration"></a>Optional Configuration
 In addition to the basic installation configuration [above](#required_config), the following configurations options are available:
@@ -152,6 +157,21 @@ config = {
   ...
 }
 ```
+
+#### <a name="sensitive_routes_regex"></a> Sensitive Routes Regex
+
+An array of regex patterns that trigger a server call to PerimeterX servers every time the page is viewed, regardless of viewing history.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  sensitive_routes_regex: [r'^/login$', r'^/user']
+  ...
+}
+```
+
 #### <a name="whitelist_routes"></a> Whitelist Routes
 
 An array of route prefixes which will bypass enforcement (will never get scored).
@@ -164,6 +184,78 @@ config = {
   whitelist_routes: ['/about-us', '/careers']
   ...
 }
+```
+
+#### <a name="whitelist_routes_regex"></a> Whitelist Routes Regex
+
+An array of regex patterns which will bypass enforcement (will never get scored).
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  whitelist_routes_regex: [r'^/about']
+  ...
+}
+```
+
+#### <a name="enforce_specific_routes"></a> Enforce Specific Routes
+
+An array of route prefixes that are always validated by the PerimeterX Worker (as opposed to whitelisted routes).
+When this property is set, any route which is not added - will be whitelisted.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  enforced_specific_routes: ['/profile']
+  ...
+};
+```
+
+#### <a name="enforce_specific_routes_regex"></a> Enforce Specific Routes Regex
+
+An array of regex patterns that are always validated by the PerimeterX Worker (as opposed to whitelisted routes).
+When this property is set, any route which is not added - will be whitelisted.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  enforced_specific_routes_regex: [r'^/profile$']
+  ...
+};
+```
+
+#### <a name="monitor_specific_routes"></a> Monitor Specific Routes
+
+An array of route prefixes that are always set to be in [monitor mode](#module_mode). This configuration is effective only when the module is enabled and in blocking mode.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  monitored_specific_routes: ['/profile']
+  ...
+};
+```
+
+#### <a name="monitor_specific_routes_regex"></a> Monitor Specific Routes Regex
+
+An array of regex patterns that are always set to be in [monitor mode](#module_mode). This configuration is effective only when the module is enabled and in blocking mode.
+
+**Default:** Empty
+
+```python
+config = {
+  ...
+  monitored_specific_routes_regex: [r'^/profile/me$']
+  ...
+};
 ```
 
 #### <a name="sensitive_headers"></a>Sensitive Headers
@@ -279,18 +371,4 @@ config = {
   bypass_monitor_header: 'x-px-block',
   ...
 }
-```
-
-#### <a name="enforce_specific_routes"></a> Enforced Specific Routes
-
-An array of route prefixes that are always validated by the PerimeterX Worker (as opposed to whitelisted routes).
-When this property is set, any route which is not added - will be whitelisted.
-
-**Default:** Empty
- ```python
-config = {
-  ...
-  enforced_specific_routes: ['/profile']
-  ...
-};
 ```

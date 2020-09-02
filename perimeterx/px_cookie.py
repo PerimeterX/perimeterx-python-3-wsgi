@@ -64,7 +64,7 @@ class PxCookie(object):
             if iterations < 1 or iterations > 10000:
                 return False
             data = base64.b64decode(parts[2])
-            dk = hashlib.pbkdf2_hmac(hash_name='sha256', password=config.cookie_key.encode(), salt=salt, iterations=iterations, dklen=48)
+            dk = hashlib.pbkdf2_hmac(hash_name='sha256', password=self._config.cookie_key.encode(), salt=salt, iterations=iterations, dklen=48)
             key = dk[:32]
             iv = dk[32:]
             cipher = AES.new(key, AES.MODE_CBC, iv)

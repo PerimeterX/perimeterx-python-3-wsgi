@@ -1,0 +1,31 @@
+# [START django_app]
+runtime: python3
+api_version: 1
+threadsafe: yes
+
+handlers:
+  - url: /static
+    static_dir: static/
+  - url: .*
+    script: sampleSite.wsgi.application
+
+env_variables:
+  GAE_USE_SOCKETS_HTTPLIB: 'true'
+
+libraries:
+  - name: pycrypto
+    version: "2.6"
+  - name: ssl
+    version: "2.7.11"
+
+# Google App Engine limits application deployments to 10,000 uploaded files per
+# version. The skip_files section allows us to skip virtual environment files
+# to meet this requirement. The first 5 are the default regular expressions to
+# skip, while the last one is for all env/ files.
+skip_files:
+  - ^(.*/)?#.*#$
+  - ^(.*/)?.*~$
+  - ^(.*/)?.*\.py[co]$
+  - ^(.*/)?.*/RCS/.*$
+  - ^(.*/)?\..*$
+  - ^env/.*$

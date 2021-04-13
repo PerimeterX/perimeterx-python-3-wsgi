@@ -9,6 +9,7 @@ from perimeterx import px_constants
 from perimeterx import px_httpc
 from perimeterx import px_utils
 
+ACTIVITIES_BATCH_SIZE = 10
 ACTIVITIES_BUFFER = []
 CONFIG = {}
 
@@ -24,13 +25,13 @@ def _send_activities_chunk():
         'Content-Type': 'application/json'
     }
     full_url = CONFIG.server_host + px_constants.API_ACTIVITIES
-    chunk = ACTIVITIES_BUFFER[:10]
+    chunk = ACTIVITIES_BUFFER[:ACTIVITIES_BATCH_SIZE]
     for _ in range(len(chunk)):
         ACTIVITIES_BUFFER.pop(0)
     px_httpc.send(full_url=full_url, body=json.dumps(chunk), headers=default_headers, config=CONFIG, method='POST')
 
 def send_activities_in_thread():
-    if len(ACTIVITIES_BUFFER) >= 10:
+    if len(ACTIVITIES_BUFFER) >= ACTIVITIES_BATCH_SIZE:
         CONFIG.logger.debug('Posting {} Activities'.format(len(ACTIVITIES_BUFFER)))
         t1 = threading.Thread(target=_send_activities_chunk)
         t1.daemon = True

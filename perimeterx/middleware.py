@@ -34,7 +34,6 @@ class PerimeterX(object):
         px_activities_client.init_activities_configuration(px_config)
 
     def __call__(self, environ, start_response):
-        px_activities_client.send_activities_in_thread()
         context = None
         try:
             start = time.time()
@@ -46,6 +45,7 @@ class PerimeterX(object):
             context, verified_response = self.verify(request)
             pxhd_callback = create_custom_pxhd_callback(context, start_response)
             self._config.logger.debug("PerimeterX Enforcer took: {} ms".format((time.time() - start) * 1000))
+            px_activities_client.send_activities_in_thread()
             if verified_response is True:
                 return self.app(environ, pxhd_callback)
 

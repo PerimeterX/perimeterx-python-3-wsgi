@@ -2,23 +2,24 @@
     "version": "1.1.0",
     "supported_features": [
         "block_activity",
+        "bypass_monitor_header",
+        "client_ip_extraction",
         "cookie_v3",
         "css_ref",
         "custom_logo",
         "custom_request_handler",
-        "debug_mode",
-        "enforce_route",
+        "logger",
+        "enforced_routes",
+        "filter_by_route",
         "first_party",
-        "ip_headers",
         "js_ref",
-        "module_enable_disable",
-        "monitor_mode",
+        "module_enable",
+        "module_mode",
         "monitored_routes",
-        "page_requested",
-        "pxvid",
+        "page_requested_activity",
         "risk_api",
         "sensitive_headers",
         "sensitive_routes",
-        "whitelist_routes"
+        "vid_extraction"
     ]
 }

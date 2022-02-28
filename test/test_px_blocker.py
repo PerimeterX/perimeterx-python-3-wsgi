@@ -103,6 +103,7 @@ class Test_PXBlocker(unittest.TestCase):
             'blockScript': '/fake_app_id/captcha/captcha.js?a=&u=8712cef7-bcfa-4bb6-ae99-868025e1908a&v=bf619be8-94be-458a-b6b1-ee81f154c282&m=0',
             'vid': 'bf619be8-94be-458a-b6b1-ee81f154c282',
             'jsRef': '',
+            'customLogo': '',
             'hostUrl': '/fake_app_id/xhr',
             'appId': 'PXfake_app_id',
             'uuid': '8712cef7-bcfa-4bb6-ae99-868025e1908a',

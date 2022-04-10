@@ -80,7 +80,6 @@ class PxConfig(object):
         self._monitored_specific_routes_regex = monitored_routes_regex
 
         self._block_html = 'BLOCK'
-        self._logo_visibility = 'visible' if custom_logo is not None else 'hidden'
         self._telemetry_config = self.__create_telemetry_config()
         self._testing_mode = testing_mode
         self._auth_token = config_dict.get('auth_token', None)
@@ -201,10 +200,6 @@ class PxConfig(object):
     @property
     def block_html(self):
         return self._block_html
-
-    @property
-    def logo_visibility(self):
-        return self._logo_visibility
 
     @property
     def additional_activity_handler(self):

@@ -89,14 +89,12 @@ class PXBlocker(object):
             host_url = px_constants.COLLECTOR_URL.format(app_id.lower())
 
         return {
-            'refId': uuid,
             'appId': app_id,
             'vid': vid,
             'uuid': uuid,
             'customLogo': custom_logo,
             'cssRef': config.css_ref,
             'jsRef': config.js_ref,
-            'logoVisibility': 'visible' if custom_logo is not None else 'hidden',
             'hostUrl': host_url,
             'jsClientSrc': js_client_src,
             'firstPartyEnabled': 'true' if config.first_party else 'false',

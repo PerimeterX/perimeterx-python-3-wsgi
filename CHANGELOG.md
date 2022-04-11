@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [1.2.0] - 2022-04-11
 ### Added
 - New block page implementation
+- Configurable max buffer length
+- Configurable px_backend_url
+- Sending activities at the end of request cycle rather than beginning of the next one
 
 ## [1.1.0] - 2020-09-02
 ### Added

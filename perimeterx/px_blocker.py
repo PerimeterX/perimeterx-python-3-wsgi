@@ -73,7 +73,7 @@ class PXBlocker(object):
         app_id = config.app_id
         vid = ctx.vid
         uuid = ctx.uuid
-        custom_logo = config.custom_logo
+        custom_logo = config.custom_logo if config.custom_logo else ''
         is_mobile_num = 1 if ctx.is_mobile else 0
         captcha_uri = 'captcha.js?a={}&u={}&v={}&m={}'.format(ctx.block_action, uuid, vid, is_mobile_num)
         alt_captcha_src = '//{}/{}/{}'.format(px_constants.ALT_CAPTCHA_HOST, app_id, captcha_uri)

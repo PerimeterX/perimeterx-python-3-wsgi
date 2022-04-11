@@ -41,7 +41,7 @@ class Test_PXBlocker(unittest.TestCase):
         context = PxContext(request, self.config)
         context.vid = vid
         context.uuid = px_uuid
-        px_config = PxConfig({'app_id': 'PXfake_app_ip'})
+        px_config = PxConfig({'app_id': 'PXfake_app_id'})
         message, _, _ = px_blocker.handle_blocking(context, px_config)
         working_dir = os.path.dirname(os.path.realpath(__file__))
         with open(working_dir + '/px_blocking_messages/blocking.txt', 'r') as myfile:

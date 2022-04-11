@@ -19,11 +19,11 @@
         window._pxJsClientSrc = '{{jsClientSrc}}';
         window._pxFirstPartyEnabled = {{firstPartyEnabled}};
         var script = document.createElement('script');
-        script.src = '{{blockScript}}';
+        script.src = '{{{blockScript}}}';
         document.head.appendChild(script);
         script.onerror = function () {
             script = document.createElement('script');
-            script.src = '{{altBlockScript}}';
+            script.src = '{{{altBlockScript}}}';
             script.onerror = window._pxDisplayErrorMessage;
             document.head.appendChild(script);
         };

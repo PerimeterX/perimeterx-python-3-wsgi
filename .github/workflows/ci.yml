@@ -1,0 +1,30 @@
+name: ci
+on: pull_request
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v4
+      - name: Install dependencies
+        run: pip install -r dev-requirements.txt && pip install -r requirements.txt
+      - name: Run linter
+        run: pylint -E perimeterx/
+  unit-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [ "3.6", "3.8", "3.x" ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: pip install -r dev-requirements.txt && pip install -r requirements.txt
+      - name: Run unit tests
+        run: python -m unittest discover -s ./test -p 'test*'

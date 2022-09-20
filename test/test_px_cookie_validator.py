@@ -12,34 +12,34 @@ class Test_PXCookieValidator(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.cookie_key = 'Pyth0nS3crE7K3Y'
-        cls.config = PxConfig({'app_id': 'app_id',
-                           'cookie_key': cls.cookie_key})
+        cls.cookie_secret = 'Pyth0nS3crE7K3Y'
+        cls.config = PxConfig({'px_app_id': 'app_id',
+                               'px_cookie_secret': cls.cookie_secret})
         cls.headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                    'remote-addr': '127.0.0.1',
-                   'content_length': '100',
-                   'path': '/fake_app_id/init.js'}
+                       'remote-addr': '127.0.0.1',
+                       'content_length': '100',
+                       'path': '/fake_app_id/init.js'}
 
     def test_verify_no_cookie(self):
         config = self.config
 
-        builder = EnvironBuilder(headers= self.headers)
+        builder = EnvironBuilder(headers=self.headers)
 
         env = builder.get_environ()
         request = Request(env)
-        ctx = PxContext(request, PxConfig({'app_id': 'fake_app_id'}))
+        ctx = PxContext(request, PxConfig({'px_app_id': 'fake_app_id'}))
         verified = px_cookie_validator.verify(ctx, config)
         self.assertFalse(verified)
         self.assertEqual('no_cookie', ctx.s2s_call_reason)
 
     def test_verify_valid_cookie(self):
         config = self.config
-        self.headers['cookie'] = '_px3=bd078865fa9627f626d6f7d6828ab595028d2c0974065ab6f6c5a9f80c4593cd:OCIluokZHHvqrWyu8zrWSH8Vu7AefCjrd4CMx/NXsX58LzeV40EZIlPG4gsNMoAYzH88s/GoZwv+DpQa76C21A==:1000:zwT+Rht/YGDNWKkzHtJAB7IiI00u4fOePL/3xWMs1nZ93lzW1XvAMGR2hLlHBmOv8O0CpylEQOZZTK1uQMls6O28Y8aQnTo5DETLkrbhpwCVeNjOcf8GVKTckITwuHfXbEcfHbdtb68s1+jHv1+vt/w/6HZqTzanaIsvFVp8vmA='
+        self.headers['cookie'] = '_px3=bbf83fb7a74cf729e62e4f2e9e7cca0e75c1132bd103e04ba3045c0d6fbe29dd:VHO15SRxOlQ=:1000:xSGDf57DeOpnS3sJRh6dKt95ZiTzAZmj71nXRJzVuKhaWaSRl3ivBrfqWZ5rpIXTgdNRTDbHOMJbx0I5H8fzIrlMK0Cm1Kwji1Has1n4VwphzY36ngKqKv+9qhMK2zB3U5lXvXWKkvcMqz09HvinAOifHsmsJLDWLEXii/4apoIYpQjYHKa+fAK2sVye4gUV'
         builder = EnvironBuilder(headers=self.headers)
 
         env = builder.get_environ()
         request = Request(env)
-        ctx = PxContext(request, PxConfig({'app_id': 'fake_app_id'}))
+        ctx = PxContext(request, PxConfig({'px_app_id': 'app_id'}))
         verified = px_cookie_validator.verify(ctx, config)
         self.assertTrue(verified)
         self.assertEqual('none', ctx.s2s_call_reason)
@@ -52,7 +52,7 @@ class Test_PXCookieValidator(unittest.TestCase):
         builder = EnvironBuilder(headers=self.headers)
         env = builder.get_environ()
         request = Request(env)
-        ctx = PxContext(request, PxConfig({'app_id': 'fake_app_id'}))
+        ctx = PxContext(request, PxConfig({'px_app_id': 'fake_app_id'}))
         verified = px_cookie_validator.verify(ctx, config)
         self.assertFalse(verified)
         self.assertEqual('cookie_decryption_failed', ctx.s2s_call_reason)
@@ -65,7 +65,7 @@ class Test_PXCookieValidator(unittest.TestCase):
         builder = EnvironBuilder(headers=self.headers)
         env = builder.get_environ()
         request = Request(env)
-        ctx = PxContext(request, PxConfig({'app_id': 'fake_app_id'}))
+        ctx = PxContext(request, PxConfig({'px_app_id': 'fake_app_id'}))
         verified = px_cookie_validator.verify(ctx, config)
         self.assertTrue(verified)
         self.assertEqual('none', ctx.s2s_call_reason)
@@ -73,12 +73,12 @@ class Test_PXCookieValidator(unittest.TestCase):
 
     def test_verify_hmac_validation(self):
         config = self.config
-        cookie_value = '774958bcc232343ea1a876b92ababf47086d8a4d95165bbd6f98b55d7e61afd2a05:ow3Er5dskpt8ZZ11CRiDMAueEi3ozJTqMBnYzsSM7/8vHTDA0so6ekhruiTrXa/taZINotR5PnTo78D5zM2pWw==:1000:uQ3Tdt7D3mSO5CuHDis3GgrnkGMC+XAghbHuNOE9x4H57RAmtxkTcNQ1DaqL8rx79bHl0iPVYlOcRmRgDiBCUoizBdUCjsSIplofPBLIl8WpfHDDtpxPKzz9I2rUEbFFjiTY3rPGob2PUvTsDXTfPUeHnzKqbNTO8z7H6irFnUE='
+        cookie_value = '_px3=abcd:JZoYVnbrh1Y=:1000:iqxHgR/FX71+cUXolJztwJrZ2FKH685xsgJNRqwvexyhdTeLP0100qan7OosAN+oRZgPjCtzn9nCkyZS4LuGrbXcp29bcYlA1uQLSUNw9SwZrxAB/w3ZOpHJOP4LnAi+oR0CUrjQoMD27EsvyIDUWaOga4AV+bVoCJyIMnyMa7TxueNG39G+ke9S2LI+Shmb'
         self.headers['cookie'] = '_px3=' + cookie_value
         builder = EnvironBuilder(headers=self.headers)
         env = builder.get_environ()
         request = Request(env)
-        ctx = PxContext(request, PxConfig({'app_id': 'fake_app_id'}))
+        ctx = PxContext(request, PxConfig({'px_app_id': 'fake_app_id'}))
         verified = px_cookie_validator.verify(ctx, config)
         self.assertFalse(verified)
         self.assertEqual('cookie_validation_failed', ctx.s2s_call_reason)
@@ -92,7 +92,7 @@ class Test_PXCookieValidator(unittest.TestCase):
         builder = EnvironBuilder(headers=self.headers)
         env = builder.get_environ()
         request = Request(env)
-        ctx = PxContext(request, PxConfig({'app_id': 'fake_app_id'}))
+        ctx = PxContext(request, PxConfig({'px_app_id': 'fake_app_id'}))
         verified = px_cookie_validator.verify(ctx, config)
         self.assertFalse(verified)
         self.assertEqual('cookie_expired', ctx.s2s_call_reason)
@@ -110,8 +110,3 @@ class Test_PXCookieValidator(unittest.TestCase):
         verified = px_cookie_validator.verify(ctx, config)
         self.assertEqual(ctx.px_cookie_raw, false_cookie)
         del self.headers['cookie']
-
-
-
-
-

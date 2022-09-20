@@ -26,7 +26,7 @@ class Test_PXApi(unittest.TestCase):
         return params
 
     def test_prepare_risk_body(self):
-        config = PxConfig({'app_id': 'app_id', 'enrich_custom_parameters': self.enrich_custom_parameters})
+        config = PxConfig({'px_app_id': 'app_id', 'px_enrich_custom_parameters': self.enrich_custom_parameters})
         builder = EnvironBuilder(headers=self.headers, path='/')
 
         env = builder.get_environ()
@@ -39,9 +39,9 @@ class Test_PXApi(unittest.TestCase):
         self.assertFalse(body['additional'].get('custom'))
 
     def test_send_risk_request(self):
-        config = PxConfig({'app_id': 'app_id',
-                           'enrich_custom_parameters': self.enrich_custom_parameters,
-                           'auth_token': 'auth'})
+        config = PxConfig({'px_app_id': 'app_id',
+                           'px_enrich_custom_parameters': self.enrich_custom_parameters,
+                           'px_auth_token': 'auth'})
         builder = EnvironBuilder(headers=self.headers, path='/test_path')
 
         env = builder.get_environ()
@@ -54,9 +54,9 @@ class Test_PXApi(unittest.TestCase):
             self.assertEqual({'action': 'c', 'score': 100, 'uuid': uuid_val}, response)
 
     def test_verify(self):
-        config = PxConfig({'app_id': 'app_id',
-                           'enrich_custom_parameters': self.enrich_custom_parameters,
-                           'auth_token': 'auth'})
+        config = PxConfig({'px_app_id': 'app_id',
+                           'px_enrich_custom_parameters': self.enrich_custom_parameters,
+                           'px_auth_token': 'auth'})
         builder = EnvironBuilder(headers=self.headers, path='/test_path')
 
         env = builder.get_environ()

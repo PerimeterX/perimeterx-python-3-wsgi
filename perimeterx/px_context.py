@@ -51,7 +51,7 @@ class PxContext(object):
         full_url = request.url
         hostname = request.host
         sensitive_route = sum(1 for _ in filter(lambda sensitive_route_item:  re.search(sensitive_route_item, uri), config.sensitive_routes_regex)) > 0 or sum(1 for _ in filter(lambda sensitive_route_item: uri.startswith(sensitive_route_item), config.sensitive_routes)) > 0
-        whitelist_route = sum(1 for _ in filter(lambda whitelist_route_item: re.search(whitelist_route_item, uri), config.whitelist_routes_regex)) > 0 or sum(1 for _ in filter(lambda whitelist_route_item: uri.startswith(whitelist_route_item), config.whitelist_routes)) > 0
+        filtered_routes = sum(1 for _ in filter(lambda whitelist_route_item: re.search(whitelist_route_item, uri), config.whitelist_routes_regex)) > 0 or sum(1 for _ in filter(lambda whitelist_route_item: uri.startswith(whitelist_route_item), config.filter_by_route)) > 0
         enforced_route = sum(1 for _ in filter(lambda enforced_route_item: re.search(enforced_route_item, uri), config.enforced_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda enforced_route_item: uri.startswith(enforced_route_item), config.enforced_specific_routes)) > 0
         monitored_route = not enforced_route and (sum(1 for _ in filter(lambda monitored_route_item: re.search(monitored_route_item, uri), config.monitored_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda monitored_route_item: uri.startswith(monitored_route_item), config.monitored_specific_routes)) > 0)
 
@@ -78,7 +78,7 @@ class PxContext(object):
         self._uuid = ''
         self._query_params = request.query_string.decode("utf-8")
         self._sensitive_route = sensitive_route
-        self._whitelist_route = whitelist_route
+        self._filtered_route = filtered_routes
         self._enforced_route = enforced_route
         self._monitored_route = monitored_route
         self._s2s_call_reason = 'none'
@@ -256,11 +256,11 @@ class PxContext(object):
 
     @property
     def whitelist_route(self):
-        return self._whitelist_route
+        return self._filtered_route
 
     @whitelist_route.setter
     def whitelist_route(self, whitelist_route):
-        self._whitelist_route = whitelist_route
+        self._filtered_route = whitelist_route
 
     @property
     def monitored_route(self):

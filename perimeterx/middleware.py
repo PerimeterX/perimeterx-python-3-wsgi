@@ -24,7 +24,7 @@ class PerimeterX(object):
             logger.error('Unable to initialize module, missing mandatory configuration: auth_token')
             raise ValueError('PX Auth Token is missing')
 
-        if not px_config.cookie_key:
+        if not px_config.cookie_secret:
             logger.error('Unable to initialize module, missing mandatory configuration: px_cookie')
             raise ValueError('PX Cookie Key is missing')
 

@@ -6,7 +6,7 @@ from Crypto.Cipher import AES
 
 def create_hmac(str_to_hmac, config):
     try:
-        return hmac.new(config.cookie_key.encode(), str_to_hmac.encode(), hashlib.sha256).hexdigest()
+        return hmac.new(config.cookie_secret.encode(), str_to_hmac.encode(), hashlib.sha256).hexdigest()
     except Exception:
         config.logger.debug("Failed to calculate hmac")
         return False
@@ -28,7 +28,7 @@ def decrypt_cookie(config, raw_cookie):
         if iterations < 1 or iterations > 10000:
             return False
         data = base64.b64decode(parts[2])
-        dk = hashlib.pbkdf2_hmac(hash_name='sha256', password=config.cookie_key.encode(), salt=salt, iterations=iterations, dklen=48)
+        dk = hashlib.pbkdf2_hmac(hash_name='sha256', password=config.cookie_secret.encode(), salt=salt, iterations=iterations, dklen=48)
         key = dk[:32]
         iv = dk[32:]
         cipher = AES.new(key, AES.MODE_CBC, iv)

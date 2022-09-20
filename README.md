@@ -58,9 +58,9 @@ To use PerimeterX middleware on a specific route follow this example:
 from perimeterx.middleware import PerimeterX
 
 px_config = {
-    'app_id': 'APP_ID',
-    'cookie_key': 'COOKIE_KEY',
-    'auth_token': 'AUTH_TOKEN',
+    'px_app_id': 'APP_ID',
+    'px_cookie_secret': 'COOKIE_SECRET',
+    'px_auth_token': 'AUTH_TOKEN',
 }
 application = get_wsgi_application()
 application = PerimeterX(application, px_config)
@@ -81,7 +81,7 @@ A boolean flag to enable/disable the PerimeterX Enforcer.
 ```python
 config = {
   ...
-  module_enabled: False
+  px_module_enabled: False
   ...
 }
 ```
@@ -98,7 +98,7 @@ Possible values:
 ```python
 config = {
   ...
-  module_mode: 'active_blocking'
+  px_module_mode: 'active_blocking'
   ...
 }
 ```
@@ -113,7 +113,7 @@ Possible values:
 ```python
 config = {
   ...
-  blocking_score: 100
+  px_blocking_score: 100
   ...
 }
 ```
@@ -141,7 +141,7 @@ Enable/disable the debug log messages.
 ```python
 config = {
   ...
-  debug_mode: True
+  px_debug_mode: True
   ...
 }
 ```
@@ -154,7 +154,7 @@ An array of route prefixes that trigger a server call to PerimeterX servers ever
 ```python
 config = {
   ...
-  sensitive_routes: ['/login', '/user/checkout']
+  px_sensitive_routes: ['/login', '/user/checkout']
   ...
 }
 ```
@@ -173,7 +173,7 @@ config = {
 }
 ```
 
-#### <a name="whitelist_routes"></a> Whitelist Routes
+#### <a name="filtered_routes"></a> Filter By Routes
 
 An array of route prefixes which will bypass enforcement (will never get scored).
 
@@ -182,7 +182,7 @@ An array of route prefixes which will bypass enforcement (will never get scored)
 ```python
 config = {
   ...
-  whitelist_routes: ['/about-us', '/careers']
+  px_filter_by_route: ['/about-us', '/careers']
   ...
 }
 ```
@@ -240,7 +240,7 @@ An array of route prefixes that are always set to be in [monitor mode](#module_m
 ```python
 config = {
   ...
-  monitored_specific_routes: ['/profile']
+  px_monitored_routes: ['/profile']
   ...
 };
 ```
@@ -268,7 +268,7 @@ An array of headers that are not sent to PerimeterX servers on API calls.
 ```python
 config = {
   ...
-  sensitive_headers: ['cookie', 'cookies', 'x-sensitive-header']
+  px_sensitive_headers: ['cookie', 'cookies', 'x-sensitive-header']
   ...
 }
 ```
@@ -282,7 +282,7 @@ An array of trusted headers that specify an IP to be extracted.
 ```python
 config = {
   ...
-  ip_headers: ['x-user-real-ip']
+  px_ip_headers: ['x-user-real-ip']
   ...
 }
 ```
@@ -296,7 +296,7 @@ Enable/disable First-Party mode.
 ```python
 config = {
   ...
-  first_party: False
+  px_first_party_enabled: False
   ...
 }
 ```
@@ -326,7 +326,7 @@ A Python function that allows interaction with the request data collected by Per
 ```python
 config = {
   ...
-  additional_activity_handler: additional_activity_handler_function,
+  px_additional_activity_handler: additional_activity_handler_function,
   ...
 }
 ```

@@ -13,7 +13,7 @@ class Test_PXBlocker(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.config = PxConfig({'app_id': 'PXfake_app_id'})
+        cls.config = PxConfig({'px_app_id': 'PXfake_app_id'})
         cls.headers = {'X-FORWARDED-FOR': '127.0.0.1',
                        'remote-addr': '127.0.0.1',
                        'content-length': '100'}
@@ -41,7 +41,7 @@ class Test_PXBlocker(unittest.TestCase):
         context = PxContext(request, self.config)
         context.vid = vid
         context.uuid = px_uuid
-        px_config = PxConfig({'app_id': 'PXfake_app_id'})
+        px_config = PxConfig({'px_app_id': 'PXfake_app_id'})
         message, _, _ = px_blocker.handle_blocking(context, px_config)
         working_dir = os.path.dirname(os.path.realpath(__file__))
         with open(working_dir + '/px_blocking_messages/blocking.txt', 'r') as myfile:
@@ -53,7 +53,7 @@ class Test_PXBlocker(unittest.TestCase):
         px_blocker = PXBlocker()
         vid = 'bf619be8-94be-458a-b6b1-ee81f154c282'
         px_uuid = '8712cef7-bcfa-4bb6-ae99-868025e1908a'
-        config = PxConfig({'app_id': 'PXfake_app_id'})
+        config = PxConfig({'px_app_id': 'PXfake_app_id'})
         builder = EnvironBuilder(headers=self.headers, path='/fake_app_id/init.js')
 
         env = builder.get_environ()

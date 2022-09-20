@@ -5,59 +5,58 @@ import os
 
 class PxConfig(object):
     def __init__(self, config_dict):
-        app_id = config_dict.get('app_id')
-        debug_mode = config_dict.get('debug_mode', False)
-        module_mode = config_dict.get('module_mode', px_constants.MODULE_MODE_MONITORING)
-        custom_logo = config_dict.get('custom_logo', None)
+        app_id = config_dict.get('px_app_id')
+        debug_mode = config_dict.get('px_debug_mode', False)
+        module_mode = config_dict.get('px_module_mode', px_constants.MODULE_MODE_MONITORING)
+        self._custom_logo = config_dict.get('px_custom_logo', None)
         testing_mode = config_dict.get('testing_mode', False)
         px_backend_host = config_dict.get('px_backend_url', None)
-        max_buffer_len = config_dict.get('max_buffer_len', 30)
+        max_buffer_len = config_dict.get('px_max_activity_batch_size', 100)
         self._px_app_id = app_id
-        self._blocking_score = config_dict.get('blocking_score', 100)
+        self._blocking_score = config_dict.get('px_blocking_score', 100)
         self._debug_mode = debug_mode
         self._module_version = config_dict.get('module_version', px_constants.MODULE_VERSION)
         self._module_version = px_constants.MODULE_VERSION.format(' GAE') if os.environ.get('SERVER_SOFTWARE','').startswith('Google') else px_constants.MODULE_VERSION.format('')
         self._module_mode = module_mode
         self._server_host = px_backend_host if px_backend_host else 'sapi.perimeterx.net' if app_id is None else px_constants.SERVER_URL.format(app_id.lower())
         self._collector_host = px_backend_host if px_backend_host else 'collector.perimeterx.net' if app_id is None else px_constants.COLLECTOR_URL.format(app_id.lower())
-        self._encryption_enabled = config_dict.get('encryption_enabled', True)
+        self._encryption_enabled = config_dict.get('px_encryption_enabled', True)
         self._sensitive_headers = [*map(lambda header: header.lower(),
-                                      config_dict.get('sensitive_headers', ['cookie', 'cookies']))]
+                                      config_dict.get('px_sensitive_headers', ['cookie', 'cookies']))]
         self._send_page_activities = config_dict.get('send_page_activities', True)
         self._api_timeout_ms = config_dict.get('api_timeout', 1000)
-        self._custom_logo = custom_logo
-        self._css_ref = config_dict.get('css_ref', '')
-        self._js_ref = config_dict.get('js_ref', '')
+        self._css_ref = config_dict.get('px_css_ref', '')
+        self._js_ref = config_dict.get('px_js_ref', '')
         self._is_mobile = config_dict.get('is_mobile', False)
         self._monitor_mode = 0 if module_mode is px_constants.MODULE_MODE_MONITORING else 1
-        self._module_enabled = config_dict.get('module_enabled', True)
-        self._auth_token = config_dict.get('auth_token', None)
+        self._module_enabled = config_dict.get('px_module_enabled', True)
+        self._auth_token = config_dict.get('px_auth_token', None)
         self._is_mobile = config_dict.get('is_mobile', False)
-        self._first_party = config_dict.get('first_party', True)
+        self._first_party = config_dict.get('px_first_party_enabled', True)
         self._first_party_xhr_enabled = config_dict.get('first_party_xhr_enabled', True)
-        self._ip_headers = config_dict.get('ip_headers', [])
-        self._proxy_url = config_dict.get('proxy_url', None)
+        self._ip_headers = config_dict.get('px_ip_headers', [])
+        self._proxy_url = config_dict.get('px_proxy_url', None)
         self._max_buffer_len = max_buffer_len if max_buffer_len > 0 else 1
-        self._bypass_monitor_header = config_dict.get('bypass_monitor_header','')
+        self._bypass_monitor_header = config_dict.get('px_bypass_monitor_header','')
 
-        sensitive_routes = config_dict.get('sensitive_routes', [])
+        sensitive_routes = config_dict.get('px_sensitive_routes', [])
         if not isinstance(sensitive_routes, list):
             raise TypeError('sensitive_routes must be a list')
         self._sensitive_routes = sensitive_routes
 
-        whitelist_routes = config_dict.get('whitelist_routes', [])
-        if not isinstance(whitelist_routes, list):
-            raise TypeError('whitelist_routes must be a list')
-        self._whitelist_routes = whitelist_routes
+        filter_by_route = config_dict.get('px_filter_by_route', [])
+        if not isinstance(filter_by_route, list):
+            raise TypeError('px_filter_by_route must be a list')
+        self._filter_by_route = filter_by_route
 
-        enforced_routes = config_dict.get('enforced_specific_routes', [])
+        enforced_routes = config_dict.get('px_enforced_routes', [])
         if not isinstance(enforced_routes, list):
-            raise TypeError('enforced_specific_routes must be a list')
+            raise TypeError('enforced_routes must be a list')
         self._enforced_specific_routes = enforced_routes
 
-        monitored_routes = config_dict.get('monitored_specific_routes', [])
+        monitored_routes = config_dict.get('px_monitored_routes', [])
         if not isinstance(monitored_routes, list):
-            raise TypeError('monitored_specific_routes must be a list')
+            raise TypeError('monitored_routes must be a list')
         self._monitored_specific_routes = monitored_routes
 
         sensitive_routes_regex = config_dict.get('sensitive_routes_regex', [])
@@ -83,8 +82,8 @@ class PxConfig(object):
         self._block_html = 'BLOCK'
         self._telemetry_config = self.__create_telemetry_config()
         self._testing_mode = testing_mode
-        self._auth_token = config_dict.get('auth_token', None)
-        self._cookie_key = config_dict.get('cookie_key', None)
+        self._auth_token = config_dict.get('px_auth_token', None)
+        self._cookie_secret = config_dict.get('px_cookie_secret', None)
         self.__instantiate_user_defined_handlers(config_dict)
         self._logger = Logger(debug_mode, app_id)
         if testing_mode:
@@ -107,8 +106,8 @@ class PxConfig(object):
         return self._auth_token
 
     @property
-    def cookie_key(self):
-        return self._cookie_key
+    def cookie_secret(self):
+        return self._cookie_secret
 
     @property
     def server_host(self):
@@ -187,8 +186,8 @@ class PxConfig(object):
         return self._sensitive_routes
 
     @property
-    def whitelist_routes(self):
-        return self._whitelist_routes
+    def filter_by_route(self):
+        return self._filter_by_route
 
     @property
     def sensitive_routes_regex(self):
@@ -249,8 +248,8 @@ class PxConfig(object):
     def __instantiate_user_defined_handlers(self, config_dict):
         self._custom_request_handler = self.__set_handler('custom_request_handler', config_dict)
         self._get_user_ip = self.__set_handler('get_user_ip', config_dict)
-        self._additional_activity_handler = self.__set_handler('additional_activity_handler', config_dict)
-        self._enrich_custom_parameters = self.__set_handler('enrich_custom_parameters', config_dict)
+        self._additional_activity_handler = self.__set_handler('px_additional_activity_handler', config_dict)
+        self._enrich_custom_parameters = self.__set_handler('px_enrich_custom_parameters', config_dict)
 
     def __set_handler(self, function_name, config_dict):
         return config_dict.get(function_name) if config_dict.get(function_name) and callable(

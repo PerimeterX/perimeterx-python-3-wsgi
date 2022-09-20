@@ -11,7 +11,7 @@ class TestPXDataEnrichmentCookie(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        config = PxConfig({'app_id': 'fake_app_id', 'cookie_key': 'test_key'})
+        config = PxConfig({'px_app_id': 'fake_app_id', 'px_cookie_secret': 'test_key'})
         cls.config = config
 
     def test_from_raw_cookie(self):
@@ -19,7 +19,7 @@ class TestPXDataEnrichmentCookie(unittest.TestCase):
         data = {'timestamp': 1398239283293}
         data_json_string = json.dumps(data)
         encoded_data = base64.b64encode(data_json_string.encode("utf-8"))
-        hmac_hex = hmac.new(self.config.cookie_key.encode("utf-8"), encoded_data, hashlib.sha256).hexdigest()
+        hmac_hex = hmac.new(self.config.cookie_secret.encode("utf-8"), encoded_data, hashlib.sha256).hexdigest()
         raw_cookie = hmac_hex  + ':' + encoded_data.decode("utf-8")
         data_enrichment_cookie.from_raw_cookie(raw_cookie)
         self.assertEqual(data_enrichment_cookie.payload, data)

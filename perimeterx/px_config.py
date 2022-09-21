@@ -6,13 +6,13 @@ import os
 class PxConfig(object):
     def __init__(self, config_dict):
         app_id = config_dict.get('px_app_id')
+        self._px_app_id = app_id
         debug_mode = config_dict.get('px_debug_mode', False)
         module_mode = config_dict.get('px_module_mode', px_constants.MODULE_MODE_MONITORING)
         self._custom_logo = config_dict.get('px_custom_logo', None)
         testing_mode = config_dict.get('testing_mode', False)
         px_backend_host = config_dict.get('px_backend_url', None)
-        max_buffer_len = config_dict.get('px_max_activity_batch_size', 100)
-        self._px_app_id = app_id
+        self._max_buffer_len = config_dict.get('px_max_activity_batch_size', 20)
         self._blocking_score = config_dict.get('px_blocking_score', 100)
         self._debug_mode = debug_mode
         self._module_version = config_dict.get('module_version', px_constants.MODULE_VERSION)
@@ -23,20 +23,16 @@ class PxConfig(object):
         self._encryption_enabled = config_dict.get('px_encryption_enabled', True)
         self._sensitive_headers = [*map(lambda header: header.lower(),
                                       config_dict.get('px_sensitive_headers', ['cookie', 'cookies']))]
-        self._send_page_activities = config_dict.get('send_page_activities', True)
+        self._send_page_activities = config_dict.get('px_send_page_activities', True)
         self._api_timeout_ms = config_dict.get('api_timeout', 1000)
         self._css_ref = config_dict.get('px_css_ref', '')
         self._js_ref = config_dict.get('px_js_ref', '')
-        self._is_mobile = config_dict.get('is_mobile', False)
-        self._monitor_mode = 0 if module_mode is px_constants.MODULE_MODE_MONITORING else 1
         self._module_enabled = config_dict.get('px_module_enabled', True)
         self._auth_token = config_dict.get('px_auth_token', None)
-        self._is_mobile = config_dict.get('is_mobile', False)
-        self._first_party = config_dict.get('px_first_party_enabled', True)
-        self._first_party_xhr_enabled = config_dict.get('first_party_xhr_enabled', True)
+        self._first_party_enabled = config_dict.get('px_first_party_enabled', True)
+        self._first_party_xhr_enabled = config_dict.get('px_first_party_xhr_enabled', True)
         self._ip_headers = config_dict.get('px_ip_headers', [])
         self._proxy_url = config_dict.get('px_proxy_url', None)
-        self._max_buffer_len = max_buffer_len if max_buffer_len > 0 else 1
         self._bypass_monitor_header = config_dict.get('px_bypass_monitor_header','')
 
         sensitive_routes = config_dict.get('px_sensitive_routes', [])
@@ -78,8 +74,6 @@ class PxConfig(object):
         if not isinstance(monitored_routes_regex, list):
             raise TypeError('monitored_specific_routes_regex must be a list')
         self._monitored_specific_routes_regex = monitored_routes_regex
-
-        self._block_html = 'BLOCK'
         self._telemetry_config = self.__create_telemetry_config()
         self._testing_mode = testing_mode
         self._auth_token = config_dict.get('px_auth_token', None)
@@ -166,8 +160,8 @@ class PxConfig(object):
         return self._js_ref
 
     @property
-    def first_party(self):
-        return self._first_party
+    def first_party_enabled(self):
+        return self._first_party_enabled
 
     @property
     def first_party_xhr_enabled(self):
@@ -196,10 +190,6 @@ class PxConfig(object):
     @property
     def whitelist_routes_regex(self):
         return self._whitelist_routes_regex
-
-    @property
-    def block_html(self):
-        return self._block_html
 
     @property
     def additional_activity_handler(self):

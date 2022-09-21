@@ -65,7 +65,7 @@ class PerimeterX(object):
         logger.debug("Starting request verification {}".format(request.path))
         ctx = None
         try:
-            if not config._module_enabled:
+            if not config.module_enabled:
                 logger.debug('Request will not be verified, module is disabled')
                 return ctx, True
             ctx = PxContext(request, config)

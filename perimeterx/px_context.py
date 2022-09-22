@@ -1,4 +1,5 @@
 import re
+import uuid
 
 from requests.structures import CaseInsensitiveDict
 
@@ -94,6 +95,7 @@ class PxContext(object):
         self._px_cookie_raw = ''
         self._original_token_error = ''
         self._original_uuid = ''
+        self._request_id = str(uuid.uuid4())
         self._decoded_original_token = ''
         self._original_token = original_token
         self._pxde = data_enrichment.payload if data_enrichment else ''
@@ -437,6 +439,14 @@ class PxContext(object):
     @response_pxhd.setter
     def response_pxhd(self, response_pxhd):
         self._response_pxhd = response_pxhd
+
+    @property
+    def request_id(self):
+        return self._request_id
+
+    @request_id.setter
+    def request_id(self, request_id):
+        self._request_id = request_id
 
 
 def generate_context_headers(request_headers, sensitive_headers):

@@ -12,7 +12,7 @@ class PxConfig(object):
         self._custom_logo = config_dict.get('px_custom_logo', None)
         testing_mode = config_dict.get('testing_mode', False)
         px_backend_host = config_dict.get('px_backend_url', None)
-        self._max_buffer_len = config_dict.get('px_max_activity_batch_size', 20)
+        max_buffer_len = config_dict.get('px_max_activity_batch_size', 20)
         self._blocking_score = config_dict.get('px_blocking_score', 100)
         self._debug_mode = debug_mode
         self._module_version = config_dict.get('module_version', px_constants.MODULE_VERSION)
@@ -34,6 +34,7 @@ class PxConfig(object):
         self._ip_headers = config_dict.get('px_ip_headers', [])
         self._proxy_url = config_dict.get('px_proxy_url', None)
         self._bypass_monitor_header = config_dict.get('px_bypass_monitor_header','')
+        self._max_buffer_len = max_buffer_len if max_buffer_len > 0 else 1
 
         sensitive_routes = config_dict.get('px_sensitive_routes', [])
         if not isinstance(sensitive_routes, list):

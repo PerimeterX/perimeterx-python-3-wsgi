@@ -47,6 +47,10 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
             'http_method': ctx.http_method,
             'http_version': ctx.http_version,
             'module_version': config.module_version,
+            'cookie_origin': ctx.cookie_origin,
+            'request_cookie_names': ctx.cookie_names,
+            'client_uuid': ctx.uuid,
+            'request_id': ctx.request_id
         }
 
         if len(detail.keys()) > 0:
@@ -61,7 +65,6 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
             'url': ctx.full_url,
             'details': _details,
             'vid': ctx.vid,
-            'uuid': ctx.uuid
         }
         if activity_type == 'page_requested' or activity_type == 'block':
             px_utils.prepare_custom_params(config, _details)
@@ -76,10 +79,9 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
 def send_block_activity(ctx, config):
     send_to_perimeterx(px_constants.BLOCK_ACTIVITY, ctx, config, {
         'block_score': ctx.score,
-        'block_uuid': ctx.uuid,
+        'client_uuid': ctx.uuid,
         'block_reason': ctx.block_reason,
         'http_version': ctx.http_version,
-        'px_cookie': ctx.decoded_cookie,
         'risk_rtt': ctx.risk_rtt,
         'cookie_origin': ctx.cookie_origin,
         'block_action': ctx.block_action,

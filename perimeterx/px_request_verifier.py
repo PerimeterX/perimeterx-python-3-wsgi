@@ -24,9 +24,6 @@ class PxRequestVerifier(object):
         if px_utils.is_static_file(ctx):
             self.logger.debug('Filter static file request. uri: {}'.format(uri))
             return True
-        if request.environ.get('REQUEST_METHOD') == 'OPTIONS':
-            self.logger.debug('The request method was whitelisted, OPTIONS')
-            return True
         if ctx.whitelist_route:
             self.logger.debug('The requested uri is whitelisted, passing request')
             return True

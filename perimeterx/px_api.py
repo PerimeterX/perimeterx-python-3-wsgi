@@ -4,6 +4,8 @@ import os
 import requests
 
 #pylint: disable=import-error
+from perimeterx.px_constants import MODULE_MODE_BLOCKING
+
 if os.environ.get('SERVER_SOFTWARE','').startswith('Google'):
     import requests_toolbelt.adapters.appengine
     requests_toolbelt.adapters.appengine.monkeypatch()
@@ -112,14 +114,13 @@ def verify(ctx, config):
 
 def prepare_risk_body(ctx, config):
     logger = config.logger
-    risk_mode  = 'monitor' if config.module_mode == px_constants.MODULE_MODE_MONITORING or ctx.monitored_route else 'active_blocking'
+    risk_mode = 'monitor' if config.module_mode == px_constants.MODULE_MODE_MONITORING or ctx.monitored_route else MODULE_MODE_BLOCKING
+
     body = {
         'request': {
             'ip': ctx.ip,
             'headers': format_headers(ctx.headers),
-            'uri': ctx.uri,
-            'url': ctx.full_url,
-            'firstParty': 'true' if config.first_party_enabled else 'false'
+            'url': ctx.full_url
         },
         'additional': {
             's2s_call_reason': ctx.s2s_call_reason,
@@ -127,7 +128,8 @@ def prepare_risk_body(ctx, config):
             'http_version': ctx.http_version,
             'module_version': config.module_version,
             'risk_mode': risk_mode,
-            'cookie_origin': ctx.cookie_origin
+            'cookie_origin': ctx.cookie_origin,
+            'request_id': ctx.request_id
         }
     }
     if ctx.vid:

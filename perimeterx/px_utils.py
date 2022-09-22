@@ -56,7 +56,7 @@ def prepare_custom_params(config, dict_to_add):
         risk_custom_params = config.enrich_custom_parameters(custom_params)
         if risk_custom_params:
             for param in risk_custom_params:
-                if re.match(custom_param_pattern, param) and risk_custom_params[param] is not '':
+                if re.match(custom_param_pattern, param) and risk_custom_params[param] != '':
                     dict_to_add[param] = risk_custom_params[param]
 
 

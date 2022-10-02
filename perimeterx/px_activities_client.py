@@ -8,6 +8,7 @@ import traceback
 from perimeterx import px_constants
 from perimeterx import px_httpc
 from perimeterx import px_utils
+from perimeterx.enums.pass_reason import PassReason
 
 ACTIVITIES_BUFFER = []
 CONFIG = {}
@@ -79,7 +80,6 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
 def send_block_activity(ctx, config):
     send_to_perimeterx(px_constants.BLOCK_ACTIVITY, ctx, config, {
         'block_score': ctx.score,
-        'client_uuid': ctx.uuid,
         'block_reason': ctx.block_reason,
         'http_version': ctx.http_version,
         'risk_rtt': ctx.risk_rtt,
@@ -90,6 +90,8 @@ def send_block_activity(ctx, config):
 
 
 def send_page_requested_activity(ctx, config):
+    error_message = ctx.error_message
+
     details = {
         'client_uuid': ctx.uuid,
         'pass_reason': ctx.pass_reason,
@@ -98,6 +100,17 @@ def send_page_requested_activity(ctx, config):
 
     if ctx.decoded_cookie:
         details['px_cookie'] = ctx.decoded_cookie
+    if ctx.pass_reason == PassReason.ENFORCER_ERROR:
+        error_message += ctx.s2s_error_reason
+    elif ctx.s2s_error_reason:
+        details['s2s_error_reason'] = ctx.s2s_error_reason
+    if ctx.s2s_error_http_status:
+        details['s2s_error_http_status'] = ctx.s2s_error_http_status
+    if ctx.s2s_error_http_message:
+        details['s2s_error_http_message'] = ctx.s2s_error_http_message
+    if error_message:
+        details['error_message'] = error_message
+
     send_to_perimeterx(px_constants.PAGE_REQUESTED_ACTIVITY, ctx, config, details)
 
 

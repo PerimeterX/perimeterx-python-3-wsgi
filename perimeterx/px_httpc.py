@@ -26,10 +26,6 @@ def send(full_url, body, headers, config, method, raise_error = False):
             response = requests.get(url=normalize_url(full_url), headers=headers, timeout=config.api_timeout, stream=True)
         else:
             response = requests.post(url=normalize_url(full_url), headers=headers, data=body, timeout=config.api_timeout)
-
-        if response.status_code >= 400:
-            logger.debug('PerimeterX server call failed: ' + str(response.status_code))
-            return False
         finish = time.time()
         request_time = finish - start
         logger.debug('PerimeterX server call took {} ms'.format(request_time * 1000))

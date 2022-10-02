@@ -3,6 +3,7 @@ import uuid
 
 from requests.structures import CaseInsensitiveDict
 
+from perimeterx.enums.s2s_error_reason import S2SErrorReason
 from perimeterx.px_constants import *
 from perimeterx.px_data_enrichment_cookie import PxDataEnrichmentCookie
 
@@ -100,6 +101,10 @@ class PxContext(object):
         self._original_token = original_token
         self._pxde = data_enrichment.payload if data_enrichment else ''
         self._pxde_verified = data_enrichment.is_valid if data_enrichment else False
+        self._s2s_error_reason = S2SErrorReason.NO_ERROR
+        self._error_message = ''
+        self._s2s_error_http_status = ''
+        self._s2s_error_http_message = ''
         logger.debug('Request context created successfully')
 
     def get_token_object(self, config, token):
@@ -447,6 +452,38 @@ class PxContext(object):
     @request_id.setter
     def request_id(self, request_id):
         self._request_id = request_id
+
+    @property
+    def s2s_error_reason(self):
+        return self._s2s_error_reason
+
+    @s2s_error_reason.setter
+    def s2s_error_reason(self, s2s_error_reason):
+        self._s2s_error_reason = s2s_error_reason
+
+    @property
+    def s2s_error_http_status(self):
+        return self._s2s_error_http_status
+
+    @s2s_error_http_status.setter
+    def s2s_error_http_status(self, s2s_error_http_status):
+        self._s2s_error_http_status = s2s_error_http_status
+
+    @property
+    def error_message(self):
+        return self._error_message
+
+    @error_message.setter
+    def error_message(self, error_message):
+        self._error_message = error_message
+
+    @property
+    def s2s_error_http_message(self):
+        return self._s2s_error_http_message
+
+    @s2s_error_http_message.setter
+    def s2s_error_http_message(self, s2s_error_http_message):
+        self._s2s_error_http_message = s2s_error_http_message
 
 
 def generate_context_headers(request_headers, sensitive_headers):

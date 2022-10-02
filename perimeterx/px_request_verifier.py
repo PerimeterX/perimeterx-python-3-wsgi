@@ -24,11 +24,8 @@ class PxRequestVerifier(object):
         if px_utils.is_static_file(ctx):
             self.logger.debug('Filter static file request. uri: {}'.format(uri))
             return True
-        if ctx.whitelist_route:
+        if ctx.filtered_route:
             self.logger.debug('The requested uri is whitelisted, passing request')
-            return True
-        if len(self.config.enforced_specific_routes) > 0 and not ctx.enforced_route:
-            self.logger.debug('The request uri {} is not listed in specific routes to enforce, passing request.'.format(uri))
             return True
         # PX Cookie verification
         if not px_cookie_validator.verify(ctx, self.config):
@@ -53,10 +50,10 @@ class PxRequestVerifier(object):
         else:
             logger.debug('Risk score is higher or equal than blocking score')
             self.report_block_traffic(ctx)
-            should_bypass_monitor = config.bypass_monitor_header and ctx.headers.get(config.bypass_monitor_header) == '1';
+
             if config.additional_activity_handler:
                 config.additional_activity_handler(ctx, config)
-            if ctx.monitored_route or (config.module_mode == px_constants.MODULE_MODE_MONITORING and not should_bypass_monitor):
+            if ctx.is_monitor_request:
                 return True
             else:
                 data, headers, status = self.px_blocker.handle_blocking(ctx=ctx, config=config)

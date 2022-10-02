@@ -362,14 +362,14 @@ Allows you to test an enforcer’s blocking flow while you are still in Monitor 
 When the header name is set(eg. `x-px-block`) and the value is set to `1`, when there is a block response (for example from using a User-Agent header with the value of `PhantomJS/1.0`) the Monitor Mode is bypassed and full block mode is applied. If one of the conditions is missing you will stay in Monitor Mode. This is done per request.
 To stay in Monitor Mode, set the header value to `0`.
 
-The Header Name is configurable using the `bypass_monitor_header` property.
+The Header Name is configurable using the `px_bypass_monitor_header` property.
 
 **Default:** Empty
 
 ```python
 config = {
   ...
-  bypass_monitor_header: 'x-px-block',
+  px_bypass_monitor_header: 'x-px-block',
   ...
 }
 ```

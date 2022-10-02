@@ -7,6 +7,8 @@ from perimeterx.enums.s2s_error_reason import S2SErrorReason
 from perimeterx.px_constants import *
 from perimeterx.px_data_enrichment_cookie import PxDataEnrichmentCookie
 
+BYPASS_MONITOR_HEADER = '1'
+
 class PxContext(object):
 
     def __init__(self, request, config):
@@ -105,7 +107,14 @@ class PxContext(object):
         self._error_message = ''
         self._s2s_error_http_status = ''
         self._s2s_error_http_message = ''
+        self._is_monitor_request = self.should_monitor_request(config) and not self.should_bypass_monitor(config)
         logger.debug('Request context created successfully')
+
+    def should_monitor_request(self, config):
+        return (config.module_mode == MODULE_MODE_MONITORING and not self.enforced_route) or self.monitored_route
+
+    def should_bypass_monitor(self, config):
+        return config.bypass_monitor_header and self.headers.get(config.bypass_monitor_header) == BYPASS_MONITOR_HEADER
 
     def get_token_object(self, config, token):
         logger = config.logger
@@ -262,12 +271,12 @@ class PxContext(object):
         self._sensitive_route = sensitive_route
 
     @property
-    def whitelist_route(self):
+    def filtered_route(self):
         return self._filtered_route
 
-    @whitelist_route.setter
-    def whitelist_route(self, whitelist_route):
-        self._filtered_route = whitelist_route
+    @filtered_route.setter
+    def filtered_route(self, filtered_route):
+        self._filtered_route = filtered_route
 
     @property
     def monitored_route(self):
@@ -484,6 +493,15 @@ class PxContext(object):
     @s2s_error_http_message.setter
     def s2s_error_http_message(self, s2s_error_http_message):
         self._s2s_error_http_message = s2s_error_http_message
+
+    @property
+    def is_monitor_request(self):
+        return self._is_monitor_request
+
+    @is_monitor_request.setter
+    def is_monitor_request(self, is_monitor_request):
+        self._is_monitor_request = is_monitor_request
+
 
 
 def generate_context_headers(request_headers, sensitive_headers):

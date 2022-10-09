@@ -52,7 +52,7 @@ class Test_PXUtils(unittest.TestCase):
         return params
 
     def test_prepare_risk_body(self):
-        config = PxConfig({'px_app_id': 'app_id', 'px_enrich_custom_parameters': self.enrich_custom_parameters})
+        config = PxConfig({'px_app_id': 'px_app_id', 'px_enrich_custom_parameters': self.enrich_custom_parameters})
         additional = {}
 
         px_utils.prepare_custom_params(config, additional)

@@ -56,22 +56,22 @@ class PxConfig(object):
             raise TypeError('monitored_routes must be a list')
         self._monitored_specific_routes = monitored_routes
 
-        sensitive_routes_regex = config_dict.get('sensitive_routes_regex', [])
+        sensitive_routes_regex = config_dict.get('px_sensitive_routes_regex', [])
         if not isinstance(sensitive_routes_regex, list):
             raise TypeError('sensitive_routes_regex must be a list')
         self._sensitive_routes_regex = sensitive_routes_regex
 
-        whitelist_routes_regex = config_dict.get('whitelist_routes_regex', [])
+        whitelist_routes_regex = config_dict.get('px_filter_by_route_regex', [])
         if not isinstance(whitelist_routes_regex, list):
             raise TypeError('whitelist_routes_regex must be a list')
         self._whitelist_routes_regex = whitelist_routes_regex
 
-        enforced_routes_regex = config_dict.get('enforced_specific_routes_regex', [])
+        enforced_routes_regex = config_dict.get('px_enforced_routes_regex', [])
         if not isinstance(enforced_routes_regex, list):
             raise TypeError('enforced_specific_routes must be a list')
         self._enforced_specific_routes_regex = enforced_routes_regex
 
-        monitored_routes_regex = config_dict.get('monitored_specific_routes_regex', [])
+        monitored_routes_regex = config_dict.get('px_monitored_routes_regex', [])
         if not isinstance(monitored_routes_regex, list):
             raise TypeError('monitored_specific_routes_regex must be a list')
         self._monitored_specific_routes_regex = monitored_routes_regex

@@ -211,7 +211,7 @@ When this property is set, any route which is not added - will be whitelisted.
 ```python
 config = {
   ...
-  enforced_specific_routes: ['/profile']
+  px_enforced_routes: ['/profile']
   ...
 };
 ```
@@ -226,7 +226,7 @@ When this property is set, any route which is not added - will be whitelisted.
 ```python
 config = {
   ...
-  enforced_specific_routes_regex: [r'^/profile$']
+  px_enforced_routes_regex: [r'^/profile$']
   ...
 };
 ```
@@ -254,7 +254,7 @@ An array of regex patterns that are always set to be in [monitor mode](#module_m
 ```python
 config = {
   ...
-  monitored_specific_routes_regex: [r'^/profile/me$']
+  px_monitored_routes_regex: [r'^/profile/me$']
   ...
 };
 ```

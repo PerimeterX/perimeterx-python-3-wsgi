@@ -55,9 +55,9 @@ class PxContext(object):
         full_url = request.url
         hostname = request.host
         sensitive_route = sum(1 for _ in filter(lambda sensitive_route_item:  re.search(sensitive_route_item, uri), config.sensitive_routes_regex)) > 0 or sum(1 for _ in filter(lambda sensitive_route_item: uri.startswith(sensitive_route_item), config.sensitive_routes)) > 0
-        filtered_routes = sum(1 for _ in filter(lambda whitelist_route_item: re.search(whitelist_route_item, uri), config.whitelist_routes_regex)) > 0 or sum(1 for _ in filter(lambda whitelist_route_item: uri.startswith(whitelist_route_item), config.filter_by_route)) > 0
-        enforced_route = sum(1 for _ in filter(lambda enforced_route_item: re.search(enforced_route_item, uri), config.enforced_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda enforced_route_item: uri.startswith(enforced_route_item), config.enforced_specific_routes)) > 0
-        monitored_route = not enforced_route and (sum(1 for _ in filter(lambda monitored_route_item: re.search(monitored_route_item, uri), config.monitored_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda monitored_route_item: uri.startswith(monitored_route_item), config.monitored_specific_routes)) > 0)
+        filtered_routes = sum(1 for _ in filter(lambda whitelist_route_item: re.search(whitelist_route_item, uri), config.whitelist_routes_regex)) > 0 or sum(1 for _ in filter(lambda whitelist_route_item: uri == whitelist_route_item, config.filter_by_route)) > 0
+        enforced_route = sum(1 for _ in filter(lambda enforced_route_item: re.search(enforced_route_item, uri), config.enforced_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda enforced_route_item: uri == enforced_route_item, config.enforced_specific_routes)) > 0
+        monitored_route = sum(1 for _ in filter(lambda monitored_route_item: re.search(monitored_route_item, uri), config.monitored_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda monitored_route_item: uri == monitored_route_item, config.monitored_specific_routes)) > 0
 
         protocol_split = request.environ.get('SERVER_PROTOCOL', '').split('/')
         if protocol_split[0].startswith('HTTP'):

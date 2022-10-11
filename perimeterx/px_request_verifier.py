@@ -54,6 +54,7 @@ class PxRequestVerifier(object):
             if config.additional_activity_handler:
                 config.additional_activity_handler(ctx, config)
             if ctx.is_monitor_request:
+                logger.debug('Monitored request')
                 return True
             else:
                 data, headers, status = self.px_blocker.handle_blocking(ctx=ctx, config=config)

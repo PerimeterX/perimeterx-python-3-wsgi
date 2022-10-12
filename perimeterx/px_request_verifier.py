@@ -60,10 +60,9 @@ class PxRequestVerifier(object):
                 data, headers, status = self.px_blocker.handle_blocking(ctx=ctx, config=config)
                 response_function = generate_blocking_response(data, headers, status)
 
-        if config.custom_request_handler:
-            data, headers, status = config.custom_request_handler(ctx, self.config, request)
-            if data and headers and status:
-                return generate_blocking_response(data, headers, status)
+        if config.custom_verification_handler:
+            logger.debug('custom verification is enabled')
+            return config.custom_verification_handler(ctx, self.config, request)
 
         if pass_request:
             return True

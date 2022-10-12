@@ -82,7 +82,7 @@ class PxConfig(object):
         self.__instantiate_user_defined_handlers(config_dict)
         self._logger = Logger(debug_mode, app_id)
         if testing_mode:
-            self._custom_request_handler = testing_mode_handling
+            self._custom_verification_handler = testing_mode_handling
 
     @property
     def module_mode(self):
@@ -129,8 +129,8 @@ class PxConfig(object):
         return self._proxy_url
 
     @property
-    def custom_request_handler(self):
-        return self._custom_request_handler
+    def custom_verification_handler(self):
+        return self._custom_verification_handler
 
     @property
     def blocking_score(self):
@@ -237,7 +237,7 @@ class PxConfig(object):
         return self._monitored_specific_routes_regex
 
     def __instantiate_user_defined_handlers(self, config_dict):
-        self._custom_request_handler = self.__set_handler('custom_request_handler', config_dict)
+        self._custom_verification_handler = self.__set_handler('px_custom_verification_handler', config_dict)
         self._get_user_ip = self.__set_handler('get_user_ip', config_dict)
         self._additional_activity_handler = self.__set_handler('px_additional_activity_handler', config_dict)
         self._enrich_custom_parameters = self.__set_handler('px_enrich_custom_parameters', config_dict)

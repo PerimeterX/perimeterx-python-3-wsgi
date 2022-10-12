@@ -1,5 +1,6 @@
 import json
 
+from werkzeug.wrappers import Response
 from perimeterx import px_constants
 
 
@@ -36,4 +37,9 @@ def testing_mode_handling(ctx, config, request):
     if ctx.original_token_error:
         result['original_token_error'] = ctx.original_token_error
 
-    return json.dumps(result), {'Content-Type': 'application/json'}, '200 OK'
+    data = json.dumps(result)
+    response = Response(data)
+    response.headers = {'Content-Type': 'application/json'}
+    response.status = '200 OK'
+
+    return response

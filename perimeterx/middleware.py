@@ -55,6 +55,7 @@ class PerimeterX(object):
             return verified_response(environ, pxhd_callback)
 
         except Exception as err:
+            self._config.logger.error(generate_exception())
             self._config.logger.error("Caught exception, passing request. Exception: {}".format(err))
             if context:
                 self.report_pass_traffic(context)

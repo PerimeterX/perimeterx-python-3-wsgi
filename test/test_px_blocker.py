@@ -1,12 +1,28 @@
 import os
 import unittest
+import json
 
 from werkzeug.test import EnvironBuilder
 from werkzeug.wrappers import Request
-
+from perimeterx import px_constants
 from perimeterx.px_blocker import PXBlocker
 from perimeterx.px_config import PxConfig
 from perimeterx.px_context import PxContext
+from perimeterx.px_request_verifier import PxRequestVerifier
+from werkzeug.wrappers import Response
+
+
+def custom_verification_handler(ctx, config, request):
+    result = {
+        'score': ctx.score
+    }
+
+    data = json.dumps(result)
+    response = Response(data)
+    response.headers = {'testing': 'testing'}
+    response.status = '303 OK'
+
+    return response
 
 
 class Test_PXBlocker(unittest.TestCase):
@@ -114,6 +130,20 @@ class Test_PXBlocker(unittest.TestCase):
         expected_message['blockScript'] = '/fake_app/captcha/captcha.js?a=&u=8712cef7-bcfa-4bb6-ae99-868025e1908a&v=bf619be8-94be-458a-b6b1-ee81f154c282&m=0'
         self.assertNotEqual(message, expected_message)
 
+    def test_custom_verification_handler(self):
+        config = PxConfig({'px_app_id': 'app_id',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_custom_verification_handler': custom_verification_handler})
+        builder = EnvironBuilder(headers=self.headers, path='/')
+        request_handler = PxRequestVerifier(config)
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, config)
+        context.score = 100
+        response = request_handler.handle_verification(context, request)
+        self.assertNotEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 303)
+        self.assertEqual(response.headers['testing'], 'testing')
 
 
 

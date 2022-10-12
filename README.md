@@ -30,7 +30,7 @@ Table of Contents
     * [Sensitive Headers](#sensitive_headers)
     * [IP Headers](#ip_headers)
     * [First-Party Enabled](#first_party_enabled)
-    * [Custom Request Handler](#custom_request_handler)
+    * [Custom Request Handler](#custom_verification_handler)
     * [Additional Activity Handler](#additional_activity_handler)
     * [Px Disable Request](#px_disable_request)
     * [Test Block Flow on Monitoring Mode](#bypass_monitor_header)
@@ -301,7 +301,7 @@ config = {
 }
 ```
 
-#### <a name="custom_request_handler"></a>Custom Request Handler
+#### <a name="custom_verification_handler"></a>Custom Verification Handler
 
 A Python function that adds a custom response handler to the request.</br>
 You must declare the function before using it in the config.</br>
@@ -313,7 +313,7 @@ The custom function should handle the response (most likely it will create a new
 ```python
 config = {
   ...
-  custom_request_handler: custom_request_handler_function,
+  px_custom_verification_handler: custom_verification_handler_function,
   ...
 }
 ```

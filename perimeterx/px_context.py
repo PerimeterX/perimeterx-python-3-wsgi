@@ -7,8 +7,6 @@ from perimeterx.enums.s2s_error_reason import S2SErrorReason
 from perimeterx.px_constants import *
 from perimeterx.px_data_enrichment_cookie import PxDataEnrichmentCookie
 
-BYPASS_MONITOR_HEADER = '1'
-
 class PxContext(object):
 
     def __init__(self, request, config):

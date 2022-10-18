@@ -33,6 +33,7 @@ class Test_PXBlocker(unittest.TestCase):
         cls.headers = {'X-FORWARDED-FOR': '127.0.0.1',
                        'remote-addr': '127.0.0.1',
                        'content-length': '100'}
+        cls.request_handler = PxRequestVerifier(cls.config)
 
     def test_is_json_response(self):
         px_blocker = PXBlocker()
@@ -210,7 +211,45 @@ class Test_PXBlocker(unittest.TestCase):
         response = request_handler.handle_verification(context, request)
         self.assertEqual(response.status_code, 403)
 
+    def test_bypass_monitor_header_block_request_in_monitor_mode(self):
+        config = PxConfig({'px_app_id': 'app_id',
+                           'px_module_mode': px_constants.MODULE_MODE_MONITORING,
+                           'px_bypass_monitor_header': 'bypass-header'})
+        self.headers.update({'bypass-header': px_constants.BYPASS_MONITOR_HEADER})
+        builder = EnvironBuilder(headers=self.headers, path='/profile')
+        request_handler = PxRequestVerifier(config)
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, config)
+        context.score = 100
+        response = request_handler.handle_verification(context, request)
+        self.assertEqual(response.status_code, 403)
 
+    def test_filter_by_route(self):
+        config = PxConfig({'px_app_id': 'app_id',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_filter_by_route': ['/profile']})
+        self.headers.update({'bypass-header': px_constants.BYPASS_MONITOR_HEADER})
+        builder = EnvironBuilder(headers=self.headers, path='/profile')
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, config)
+        context.score = 100
+        response = self.request_handler.verify_request(context, request)
+        self.assertTrue(response)
+
+    def test_filter_by_route_regex(self):
+        config = PxConfig({'px_app_id': 'app_id',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_filter_by_route': ['/profile.*']})
+        self.headers.update({'bypass-header': px_constants.BYPASS_MONITOR_HEADER})
+        builder = EnvironBuilder(headers=self.headers, path='/profile/test')
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, config)
+        context.score = 100
+        response = self.request_handler.verify_request(context, request)
+        self.assertTrue(response)
 
 
 

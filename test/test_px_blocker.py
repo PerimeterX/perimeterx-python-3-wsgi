@@ -241,7 +241,7 @@ class Test_PXBlocker(unittest.TestCase):
     def test_filter_by_route_regex(self):
         config = PxConfig({'px_app_id': 'app_id',
                            'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
-                           'px_filter_by_route': ['/profile.*']})
+                           'px_filter_by_route_regex': ['/profile.*']})
         self.headers.update({'bypass-header': px_constants.BYPASS_MONITOR_HEADER})
         builder = EnvironBuilder(headers=self.headers, path='/profile/test')
         env = builder.get_environ()

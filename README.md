@@ -168,7 +168,7 @@ An array of regex patterns that trigger a server call to PerimeterX servers ever
 ```python
 config = {
   ...
-  sensitive_routes_regex: [r'^/login$', r'^/user']
+  px_sensitive_routes_regex: [r'^/login$', r'^/user']
   ...
 }
 ```

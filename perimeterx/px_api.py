@@ -112,16 +112,16 @@ def handle_unexpected_http_status_error(ctx, response, config):
     ctx.s2s_error_http_message = response.reason
 
 
-def handle_s2s_error(ctx, response, s2sErrorReason, exception):
+def handle_s2s_error(ctx, response, s2s_error_reason, exception):
     """
-       :param s2sErrorReason:
+       :param s2s_error_reason:
        :param response: Response
        :param exception: Exception
        :param PxContext ctx: PxContext
        :return bool: is request verified
        """
 
-    ctx.s2s_error_reason = s2sErrorReason
+    ctx.s2s_error_reason = s2s_error_reason
     ctx.pass_reason = PassReason.S2S_ERROR
 
     if response and response.status_code:
@@ -180,7 +180,7 @@ def verify(ctx, config):
             return False
     except Exception as err:
         logger.error('Risk API request failed. Error: {}'.format(err))
-        handle_s2s_error(ctx, response, err)
+        handle_s2s_error(ctx, response, S2SErrorReason.UNKNOWN_ERROR, err)
         return False
 
 

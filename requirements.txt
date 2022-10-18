@@ -6,4 +6,3 @@ pycryptodome>=3.9.0
 
 mock~=4.0.3
 requests_mock>=1.10.0
-sys>=3.8.9

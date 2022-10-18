@@ -145,6 +145,72 @@ class Test_PXBlocker(unittest.TestCase):
         self.assertEqual(response.status_code, 303)
         self.assertEqual(response.headers['testing'], 'testing')
 
+    def test_monitored_routes_monitor_request_that_should_be_blocked(self):
+        config = PxConfig({'px_app_id': 'app_id',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_monitored_routes': ['/profile']})
+        builder = EnvironBuilder(headers=self.headers, path='/profile')
+        request_handler = PxRequestVerifier(config)
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, config)
+        context.score = 100
+        response = request_handler.handle_verification(context, request)
+        self.assertTrue(response)
+
+    def test_monitored_routes_block_request_that_shouldnt_be_monitored(self):
+        config = PxConfig({'px_app_id': 'app_id',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_monitored_routes': ['/profile']})
+        builder = EnvironBuilder(headers=self.headers, path='/pro')
+        request_handler = PxRequestVerifier(config)
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, config)
+        context.score = 100
+        response = request_handler.handle_verification(context, request)
+        self.assertEqual(response.status_code, 403)
+
+    def test_monitored_routes_regex_monitor_request_that_should_be_monitored(self):
+        config = PxConfig({'px_app_id': 'app_id',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_monitored_routes_regex': ['/profile.*']})
+        builder = EnvironBuilder(headers=self.headers, path='/profile/test')
+        request_handler = PxRequestVerifier(config)
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, config)
+        context.score = 100
+        response = request_handler.handle_verification(context, request)
+        self.assertTrue(response)
+
+    def test_enforced_routes_block_request_in_monitor_mode(self):
+        config = PxConfig({'px_app_id': 'app_id',
+                           'px_module_mode': px_constants.MODULE_MODE_MONITORING,
+                           'px_enforced_routes': ['/profile']})
+        builder = EnvironBuilder(headers=self.headers, path='/profile')
+        request_handler = PxRequestVerifier(config)
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, config)
+        context.score = 100
+        response = request_handler.handle_verification(context, request)
+        self.assertEqual(response.status_code, 403)
+
+    def test_enforced_routes_regex_block_request_in_monitor_mode(self):
+        config = PxConfig({'px_app_id': 'app_id',
+                           'px_module_mode': px_constants.MODULE_MODE_MONITORING,
+                           'px_enforced_routes_regex': ['/profile.*']})
+        builder = EnvironBuilder(headers=self.headers, path='/profile')
+        request_handler = PxRequestVerifier(config)
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, config)
+        context.score = 100
+        response = request_handler.handle_verification(context, request)
+        self.assertEqual(response.status_code, 403)
+
+
 
 
 

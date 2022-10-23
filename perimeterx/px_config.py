@@ -7,14 +7,14 @@ class PxConfig(object):
     def __init__(self, config_dict):
         app_id = config_dict.get('px_app_id')
         self._px_app_id = app_id
-        debug_mode = config_dict.get('px_debug_mode', False)
+        logger_severity = config_dict.get('px_logger_severity', 'error')
         module_mode = config_dict.get('px_module_mode', px_constants.MODULE_MODE_MONITORING)
         self._custom_logo = config_dict.get('px_custom_logo', None)
         testing_mode = config_dict.get('testing_mode', False)
         px_backend_host = config_dict.get('px_backend_url', None)
         max_buffer_len = config_dict.get('px_max_activity_batch_size', 20)
         self._blocking_score = config_dict.get('px_blocking_score', 100)
-        self._debug_mode = debug_mode
+        self._logger_severity = logger_severity
         self._module_version = config_dict.get('module_version', px_constants.MODULE_VERSION)
         self._module_version = px_constants.MODULE_VERSION.format(' GAE') if os.environ.get('SERVER_SOFTWARE','').startswith('Google') else px_constants.MODULE_VERSION.format('')
         self._module_mode = module_mode
@@ -80,7 +80,7 @@ class PxConfig(object):
         self._auth_token = config_dict.get('px_auth_token', None)
         self._cookie_secret = config_dict.get('px_cookie_secret', None)
         self.__instantiate_user_defined_handlers(config_dict)
-        self._logger = Logger(debug_mode, app_id)
+        self._logger = Logger(logger_severity, app_id)
         if testing_mode:
             self._custom_verification_handler = testing_mode_handling
 
@@ -198,7 +198,7 @@ class PxConfig(object):
 
     @property
     def debug_mode(self):
-        return self._debug_mode
+        return self._logger_severity == 'debug'
 
     @property
     def max_buffer_len(self):

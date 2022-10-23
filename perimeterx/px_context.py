@@ -101,7 +101,7 @@ class PxContext(object):
         self._original_token = original_token
         self._pxde = data_enrichment.payload if data_enrichment else ''
         self._pxde_verified = data_enrichment.is_valid if data_enrichment else False
-        self._s2s_error_reason = S2SErrorReason.NO_ERROR
+        self._s2s_error_reason = str(S2SErrorReason.NO_ERROR)
         self._error_message = ''
         self._s2s_error_http_status = ''
         self._s2s_error_http_message = ''

@@ -132,16 +132,18 @@ config = {
 }
 ```
 
-#### <a name="debug_mode"></a>Debug Mode
+#### <a name="logger_severity"></a>Logger Severity
 
-Enable/disable the debug log messages.
+The severity level at which the logger should output logs
+'error' - PerimeterX logger will log errors only on fatal events (e.g., uncaught errors)
+'debug' - PerimeterX logger will output detailed logs for debugging purposes
 
-**Default:** False
+**Default:** 'error'
 
 ```python
 config = {
   ...
-  px_debug_mode: True
+  px_logger_severity: 'debug'
   ...
 }
 ```

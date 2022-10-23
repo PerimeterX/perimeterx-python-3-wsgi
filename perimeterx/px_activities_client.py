@@ -100,7 +100,7 @@ def send_page_requested_activity(ctx, config):
 
     if ctx.decoded_cookie:
         details['px_cookie'] = ctx.decoded_cookie
-    if ctx.pass_reason == PassReason.ENFORCER_ERROR:
+    if ctx.pass_reason == str(PassReason.ENFORCER_ERROR):
         error_message += ctx.s2s_error_reason
     elif ctx.s2s_error_reason:
         details['s2s_error_reason'] = ctx.s2s_error_reason

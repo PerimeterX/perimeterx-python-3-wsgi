@@ -77,8 +77,8 @@ class PerimeterX(object):
         except Exception as err:
             logger.error("Caught exception in verify, passing request. Exception: {}".format(err))
             if ctx:
-                if ctx.s2s_error_reason == S2SErrorReason.NO_ERROR:
-                    ctx.pass_reason = PassReason.ENFORCER_ERROR
+                if ctx.s2s_error_reason == str(S2SErrorReason.NO_ERROR):
+                    ctx.pass_reason = str(PassReason.ENFORCER_ERROR)
                     ctx.error_message = generate_exception()
 
                 self.report_pass_traffic(ctx)

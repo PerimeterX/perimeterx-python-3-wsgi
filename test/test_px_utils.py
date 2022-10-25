@@ -26,7 +26,7 @@ class Test_PXUtils(unittest.TestCase):
         self.assertEqual(headers_sample[px_constants.FIRST_PARTY_FORWARDED_FOR], '127.0.0.1')
 
     def test_is_static_file(self):
-        config = PxConfig({'app_id' : 'fake_app_id'})
+        config = PxConfig({'px_app_id' : 'fake_app_id'})
         headers = {'X-FORWARDED-FOR': '127.0.0.1',
                    'remote-addr': '127.0.0.1',
                    'content_length': '100',
@@ -52,7 +52,7 @@ class Test_PXUtils(unittest.TestCase):
         return params
 
     def test_prepare_risk_body(self):
-        config = PxConfig({'app_id': 'app_id', 'enrich_custom_parameters': self.enrich_custom_parameters})
+        config = PxConfig({'px_app_id': 'px_app_id', 'px_enrich_custom_parameters': self.enrich_custom_parameters})
         additional = {}
 
         px_utils.prepare_custom_params(config, additional)

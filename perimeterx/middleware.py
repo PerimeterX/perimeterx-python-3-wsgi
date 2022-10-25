@@ -1,9 +1,12 @@
+import sys
 import time
 
 from werkzeug.wrappers import Request
 
 from perimeterx import px_activities_client
 from perimeterx import px_utils
+from perimeterx.enums.pass_reason import PassReason
+from perimeterx.enums.s2s_error_reason import S2SErrorReason
 from perimeterx.px_config import PxConfig
 from perimeterx.px_context import PxContext
 from perimeterx.px_request_verifier import PxRequestVerifier
@@ -24,7 +27,7 @@ class PerimeterX(object):
             logger.error('Unable to initialize module, missing mandatory configuration: auth_token')
             raise ValueError('PX Auth Token is missing')
 
-        if not px_config.cookie_key:
+        if not px_config.cookie_secret:
             logger.error('Unable to initialize module, missing mandatory configuration: px_cookie')
             raise ValueError('PX Cookie Key is missing')
 
@@ -52,6 +55,7 @@ class PerimeterX(object):
             return verified_response(environ, pxhd_callback)
 
         except Exception as err:
+            self._config.logger.error(generate_exception())
             self._config.logger.error("Caught exception, passing request. Exception: {}".format(err))
             if context:
                 self.report_pass_traffic(context)
@@ -65,7 +69,7 @@ class PerimeterX(object):
         logger.debug("Starting request verification {}".format(request.path))
         ctx = None
         try:
-            if not config._module_enabled:
+            if not config.module_enabled:
                 logger.debug('Request will not be verified, module is disabled')
                 return ctx, True
             ctx = PxContext(request, config)
@@ -73,6 +77,10 @@ class PerimeterX(object):
         except Exception as err:
             logger.error("Caught exception in verify, passing request. Exception: {}".format(err))
             if ctx:
+                if ctx.s2s_error_reason == str(S2SErrorReason.NO_ERROR):
+                    ctx.pass_reason = str(PassReason.ENFORCER_ERROR)
+                    ctx.error_message = generate_exception()
+
                 self.report_pass_traffic(ctx)
             else:
                 self.report_pass_traffic(PxContext(Request({}), config))
@@ -97,3 +105,11 @@ def create_custom_pxhd_callback(context, start_response):
         return start_response(status, headers, exc_info)
 
     return custom_start_response
+
+
+def generate_exception():
+    exc_type, exc_obj, tb = sys.exc_info()
+    f = tb.tb_frame
+    lineno = tb.tb_lineno
+    filename = f.f_code.co_filename
+    return 'EXCEPTION IN ({}, LINE {}): {}'.format(filename, lineno, exc_obj)

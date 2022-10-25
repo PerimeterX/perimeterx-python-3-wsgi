@@ -1,11 +1,11 @@
 import json
 
+from werkzeug.wrappers import Response
 from perimeterx import px_constants
 
 
 def testing_mode_handling(ctx, config, request):
     result = {
-        'px_cookies': ctx.px_cookies,
         'vid': ctx.vid,
         'ip': ctx.ip,
         'full_url': ctx.full_url,
@@ -26,9 +26,10 @@ def testing_mode_handling(ctx, config, request):
         'module_mode': 1 if config.module_mode is px_constants.MODULE_MODE_BLOCKING else 0,
         'score': ctx.score,
         'risk_rtt': ctx.risk_rtt,
-        'uuid': ctx.uuid,
+        'client_uuid': ctx.uuid,
         'pxde': ctx.pxde,
         'pxde_verified': ctx.pxde_verified,
+        'request_id': ctx.request_id
     }
 
     if ctx.original_uuid:
@@ -36,4 +37,9 @@ def testing_mode_handling(ctx, config, request):
     if ctx.original_token_error:
         result['original_token_error'] = ctx.original_token_error
 
-    return json.dumps(result), {'Content-Type': 'application/json'}, '200 OK'
+    data = json.dumps(result)
+    response = Response(data)
+    response.headers = {'Content-Type': 'application/json'}
+    response.status = '200 OK'
+
+    return response

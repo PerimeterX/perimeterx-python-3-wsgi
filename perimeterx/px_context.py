@@ -1,7 +1,9 @@
 import re
+import uuid
 
 from requests.structures import CaseInsensitiveDict
 
+from perimeterx.enums.s2s_error_reason import S2SErrorReason
 from perimeterx.px_constants import *
 from perimeterx.px_data_enrichment_cookie import PxDataEnrichmentCookie
 
@@ -50,10 +52,10 @@ class PxContext(object):
         uri = request.path
         full_url = request.url
         hostname = request.host
-        sensitive_route = sum(1 for _ in filter(lambda sensitive_route_item:  re.search(sensitive_route_item, uri), config.sensitive_routes_regex)) > 0 or sum(1 for _ in filter(lambda sensitive_route_item: uri.startswith(sensitive_route_item), config.sensitive_routes)) > 0
-        whitelist_route = sum(1 for _ in filter(lambda whitelist_route_item: re.search(whitelist_route_item, uri), config.whitelist_routes_regex)) > 0 or sum(1 for _ in filter(lambda whitelist_route_item: uri.startswith(whitelist_route_item), config.whitelist_routes)) > 0
-        enforced_route = sum(1 for _ in filter(lambda enforced_route_item: re.search(enforced_route_item, uri), config.enforced_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda enforced_route_item: uri.startswith(enforced_route_item), config.enforced_specific_routes)) > 0
-        monitored_route = not enforced_route and (sum(1 for _ in filter(lambda monitored_route_item: re.search(monitored_route_item, uri), config.monitored_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda monitored_route_item: uri.startswith(monitored_route_item), config.monitored_specific_routes)) > 0)
+        sensitive_route = sum(1 for _ in filter(lambda sensitive_route_item: re.match(sensitive_route_item, uri), config.sensitive_routes_regex)) > 0 or sum(1 for _ in filter(lambda sensitive_route_item: uri == sensitive_route_item, config.sensitive_routes)) > 0
+        filtered_routes = sum(1 for _ in filter(lambda whitelist_route_item: re.match(whitelist_route_item, uri), config.whitelist_routes_regex)) > 0 or sum(1 for _ in filter(lambda whitelist_route_item: uri == whitelist_route_item, config.filter_by_route)) > 0
+        enforced_route = sum(1 for _ in filter(lambda enforced_route_item: re.match(enforced_route_item, uri), config.enforced_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda enforced_route_item: uri == enforced_route_item, config.enforced_specific_routes)) > 0
+        monitored_route = sum(1 for _ in filter(lambda monitored_route_item: re.match(monitored_route_item, uri), config.monitored_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda monitored_route_item: uri == monitored_route_item, config.monitored_specific_routes)) > 0
 
         protocol_split = request.environ.get('SERVER_PROTOCOL', '').split('/')
         if protocol_split[0].startswith('HTTP'):
@@ -78,7 +80,7 @@ class PxContext(object):
         self._uuid = ''
         self._query_params = request.query_string.decode("utf-8")
         self._sensitive_route = sensitive_route
-        self._whitelist_route = whitelist_route
+        self._filtered_route = filtered_routes
         self._enforced_route = enforced_route
         self._monitored_route = monitored_route
         self._s2s_call_reason = 'none'
@@ -94,11 +96,23 @@ class PxContext(object):
         self._px_cookie_raw = ''
         self._original_token_error = ''
         self._original_uuid = ''
+        self._request_id = str(uuid.uuid4())
         self._decoded_original_token = ''
         self._original_token = original_token
         self._pxde = data_enrichment.payload if data_enrichment else ''
         self._pxde_verified = data_enrichment.is_valid if data_enrichment else False
+        self._s2s_error_reason = str(S2SErrorReason.NO_ERROR)
+        self._error_message = ''
+        self._s2s_error_http_status = ''
+        self._s2s_error_http_message = ''
+        self._is_monitor_request = self.should_monitor_request(config) and not self.should_bypass_monitor(config)
         logger.debug('Request context created successfully')
+
+    def should_monitor_request(self, config):
+        return (config.module_mode == MODULE_MODE_MONITORING and not self.enforced_route) or self.monitored_route
+
+    def should_bypass_monitor(self, config):
+        return config.bypass_monitor_header and self.headers.get(config.bypass_monitor_header) == BYPASS_MONITOR_HEADER
 
     def get_token_object(self, config, token):
         logger = config.logger
@@ -255,12 +269,12 @@ class PxContext(object):
         self._sensitive_route = sensitive_route
 
     @property
-    def whitelist_route(self):
-        return self._whitelist_route
+    def filtered_route(self):
+        return self._filtered_route
 
-    @whitelist_route.setter
-    def whitelist_route(self, whitelist_route):
-        self._whitelist_route = whitelist_route
+    @filtered_route.setter
+    def filtered_route(self, filtered_route):
+        self._filtered_route = filtered_route
 
     @property
     def monitored_route(self):
@@ -437,6 +451,55 @@ class PxContext(object):
     @response_pxhd.setter
     def response_pxhd(self, response_pxhd):
         self._response_pxhd = response_pxhd
+
+    @property
+    def request_id(self):
+        return self._request_id
+
+    @request_id.setter
+    def request_id(self, request_id):
+        self._request_id = request_id
+
+    @property
+    def s2s_error_reason(self):
+        return self._s2s_error_reason
+
+    @s2s_error_reason.setter
+    def s2s_error_reason(self, s2s_error_reason):
+        self._s2s_error_reason = s2s_error_reason
+
+    @property
+    def s2s_error_http_status(self):
+        return self._s2s_error_http_status
+
+    @s2s_error_http_status.setter
+    def s2s_error_http_status(self, s2s_error_http_status):
+        self._s2s_error_http_status = s2s_error_http_status
+
+    @property
+    def error_message(self):
+        return self._error_message
+
+    @error_message.setter
+    def error_message(self, error_message):
+        self._error_message = error_message
+
+    @property
+    def s2s_error_http_message(self):
+        return self._s2s_error_http_message
+
+    @s2s_error_http_message.setter
+    def s2s_error_http_message(self, s2s_error_http_message):
+        self._s2s_error_http_message = s2s_error_http_message
+
+    @property
+    def is_monitor_request(self):
+        return self._is_monitor_request
+
+    @is_monitor_request.setter
+    def is_monitor_request(self, is_monitor_request):
+        self._is_monitor_request = is_monitor_request
+
 
 
 def generate_context_headers(request_headers, sensitive_headers):

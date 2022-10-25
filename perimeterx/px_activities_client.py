@@ -8,6 +8,7 @@ import traceback
 from perimeterx import px_constants
 from perimeterx import px_httpc
 from perimeterx import px_utils
+from perimeterx.enums.pass_reason import PassReason
 
 ACTIVITIES_BUFFER = []
 CONFIG = {}
@@ -47,6 +48,10 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
             'http_method': ctx.http_method,
             'http_version': ctx.http_version,
             'module_version': config.module_version,
+            'cookie_origin': ctx.cookie_origin,
+            'request_cookie_names': ctx.cookie_names,
+            'client_uuid': ctx.uuid,
+            'request_id': ctx.request_id
         }
 
         if len(detail.keys()) > 0:
@@ -61,7 +66,6 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
             'url': ctx.full_url,
             'details': _details,
             'vid': ctx.vid,
-            'uuid': ctx.uuid
         }
         if activity_type == 'page_requested' or activity_type == 'block':
             px_utils.prepare_custom_params(config, _details)
@@ -76,18 +80,18 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
 def send_block_activity(ctx, config):
     send_to_perimeterx(px_constants.BLOCK_ACTIVITY, ctx, config, {
         'block_score': ctx.score,
-        'block_uuid': ctx.uuid,
         'block_reason': ctx.block_reason,
         'http_version': ctx.http_version,
-        'px_cookie': ctx.decoded_cookie,
         'risk_rtt': ctx.risk_rtt,
         'cookie_origin': ctx.cookie_origin,
         'block_action': ctx.block_action,
-        'simulated_block': config.module_mode is px_constants.MODULE_MODE_MONITORING or ctx.monitored_route,
+        'simulated_block': ctx.is_monitor_request
     })
 
 
 def send_page_requested_activity(ctx, config):
+    error_message = ctx.error_message
+
     details = {
         'client_uuid': ctx.uuid,
         'pass_reason': ctx.pass_reason,
@@ -96,6 +100,17 @@ def send_page_requested_activity(ctx, config):
 
     if ctx.decoded_cookie:
         details['px_cookie'] = ctx.decoded_cookie
+    if ctx.pass_reason == str(PassReason.ENFORCER_ERROR):
+        error_message += ctx.s2s_error_reason
+    elif ctx.s2s_error_reason:
+        details['s2s_error_reason'] = ctx.s2s_error_reason
+    if ctx.s2s_error_http_status:
+        details['s2s_error_http_status'] = ctx.s2s_error_http_status
+    if ctx.s2s_error_http_message:
+        details['s2s_error_http_message'] = ctx.s2s_error_http_message
+    if error_message:
+        details['error_message'] = error_message
+
     send_to_perimeterx(px_constants.PAGE_REQUESTED_ACTIVITY, ctx, config, details)
 
 

@@ -3,11 +3,16 @@ import time
 import os
 import requests
 
-#pylint: disable=import-error
-if os.environ.get('SERVER_SOFTWARE','').startswith('Google'):
+# pylint: disable=import-error
+from perimeterx.enums.pass_reason import PassReason
+from perimeterx.enums.s2s_error_reason import S2SErrorReason
+from perimeterx.px_constants import MODULE_MODE_BLOCKING
+
+if os.environ.get('SERVER_SOFTWARE', '').startswith('Google'):
     import requests_toolbelt.adapters.appengine
+
     requests_toolbelt.adapters.appengine.monkeypatch()
-#pylint: enable=import-error
+# pylint: enable=import-error
 
 from perimeterx import px_constants
 from perimeterx import px_httpc
@@ -41,20 +46,90 @@ def send_risk_request(ctx, config):
     }
     try:
         response = px_httpc.send(full_url=config.server_host + px_constants.API_RISK, body=json.dumps(body),
-                                 config=config, headers=default_headers, method='POST', raise_error = True)
-        if response:
-            config.logger.debug('Risk response: {}'.format(response.content))
-            return json.loads(response.content)
-        return False
+                                 config=config, headers=default_headers, method='POST', raise_error=True)
+
+        if response is None:
+            ctx.pass_reason = str(PassReason.S2S_ERROR)
+            handle_s2s_error(ctx, response, str(S2SErrorReason.INVALID_RESPONSE), None)
+            return False
+
+        if response.status_code != 200:
+            handle_unexpected_http_status_error(ctx, response, config)
+            return False
+
+        config.logger.debug('Risk response: {}'.format(response.content))
+        json_response = json.loads(response.content)
+
+        if not json_response or type(json_response) is not dict:
+            handle_s2s_error(ctx, response, str(S2SErrorReason.INVALID_RESPONSE), None)
+            return False
+
+        ctx.uuid = json_response.get('uuid')
+
+        if not is_valid_response(json_response):
+            handle_s2s_error(ctx, response, str(S2SErrorReason.REQUEST_FAILED_ON_SERVER), None)
+            return False
+
+        return json_response
+
     except requests.exceptions.Timeout:
-        ctx.pass_reason = 's2s_timeout'
+        ctx.pass_reason = str(PassReason.S2S_TIMEOUT)
         risk_rtt = time.time() - start
         config.logger.debug('Risk API timed out, round_trip_time: {}'.format(risk_rtt))
         return False
+    except ValueError as e:
+        handle_s2s_error(ctx, response, str(S2SErrorReason.INVALID_RESPONSE), e)
+        config.logger.debug('Unexpected exception in Risk API call, the response is invalid: {}'.format(e))
+        return False
     except requests.exceptions.RequestException as e:
-        ctx.pass_reason = 's2s_error'
+        handle_s2s_error(ctx, response, str(S2SErrorReason.INVALID_RESPONSE), e)
         config.logger.debug('Unexpected exception in Risk API call: {}'.format(e))
         return False
+    except Exception as e:
+        handle_s2s_error(ctx, response, str(S2SErrorReason.UNKNOWN_ERROR), e)
+        config.logger.debug('Unexpected exception in Risk API call: {}'.format(e))
+        return False
+
+
+def is_valid_response(response):
+    return response.get('status') == 0
+
+
+def handle_unexpected_http_status_error(ctx, response, config):
+    logger = config.logger
+    ctx.pass_reason = str(PassReason.S2S_ERROR)
+    error_reason = str(S2SErrorReason.UNKNOWN_ERROR)
+    response_status = response.status_code
+
+    if 500 <= response_status < 600:
+        error_reason = str(S2SErrorReason.SERVER_ERROR)
+    elif 400 <= response_status < 500:
+        error_reason = str(S2SErrorReason.BAD_REQUEST)
+
+    logger.debug('Risk API returned status {}, {}'.format(response_status, error_reason))
+    ctx.s2s_error_reason = error_reason
+    ctx.error_message = str(response.content)
+    ctx.s2s_error_http_status = response_status
+    ctx.s2s_error_http_message = response.reason
+
+
+def handle_s2s_error(ctx, response, s2s_error_reason, exception):
+    """
+       :param s2s_error_reason:
+       :param response: Response
+       :param exception: Exception
+       :param PxContext ctx: PxContext
+       :return bool: is request verified
+       """
+
+    ctx.s2s_error_reason = s2s_error_reason
+    ctx.pass_reason = str(PassReason.S2S_ERROR)
+
+    if response is not None and response.status_code:
+        ctx.s2s_error_http_status = response.status_code
+
+    ctx.error_message = str(exception) if exception else 'error'
+
 
 def verify(ctx, config):
     """
@@ -73,13 +148,12 @@ def verify(ctx, config):
 
         if response:
             ctx.score = response.get('score')
-            ctx.uuid = response.get('uuid')
             ctx.block_action = response.get('action')
             ctx.risk_rtt = risk_rtt
             ctx.pxde = response.get('data_enrichment', {})
             ctx.pxde_verified = True
             response_pxhd = response.get('pxhd', '')
-            #Do not set cookie if there's already a valid pxhd
+            # Do not set cookie if there's already a valid pxhd
             ctx.response_pxhd = response_pxhd
             if ctx.score >= config.blocking_score:
                 if response.get('action') == px_constants.ACTION_CHALLENGE and \
@@ -98,7 +172,7 @@ def verify(ctx, config):
                     logger.debug("block score threshold reached, will initiate blocking")
                     ctx.block_reason = 's2s_high_score'
             else:
-                ctx.pass_reason = 's2s'
+                ctx.pass_reason = str(PassReason.S2S)
 
             msg = 'Risk API response returned successfully, risk score: {}, round_trip_time: {} ms'
             logger.debug(msg.format(ctx.score, risk_rtt))
@@ -107,19 +181,19 @@ def verify(ctx, config):
             return False
     except Exception as err:
         logger.error('Risk API request failed. Error: {}'.format(err))
+        handle_s2s_error(ctx, response, str(S2SErrorReason.UNKNOWN_ERROR), err)
         return False
 
 
 def prepare_risk_body(ctx, config):
     logger = config.logger
-    risk_mode  = 'monitor' if config.module_mode == px_constants.MODULE_MODE_MONITORING or ctx.monitored_route else 'active_blocking'
+    risk_mode = 'monitor' if config.module_mode == px_constants.MODULE_MODE_MONITORING or ctx.monitored_route else MODULE_MODE_BLOCKING
+
     body = {
         'request': {
             'ip': ctx.ip,
             'headers': format_headers(ctx.headers),
-            'uri': ctx.uri,
-            'url': ctx.full_url,
-            'firstParty': 'true' if config.first_party else 'false'
+            'url': ctx.full_url
         },
         'additional': {
             's2s_call_reason': ctx.s2s_call_reason,
@@ -127,7 +201,8 @@ def prepare_risk_body(ctx, config):
             'http_version': ctx.http_version,
             'module_version': config.module_version,
             'risk_mode': risk_mode,
-            'cookie_origin': ctx.cookie_origin
+            'cookie_origin': ctx.cookie_origin,
+            'request_id': ctx.request_id
         }
     }
     if ctx.vid:
@@ -153,7 +228,6 @@ def prepare_risk_body(ctx, config):
     if ctx.s2s_call_reason in ['cookie_expired', 'cookie_validation_failed']:
         logger.debug('attaching px_cookie to request')
         body['additional']['px_cookie'] = ctx.decoded_cookie
-
 
     return body
 

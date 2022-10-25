@@ -23,7 +23,7 @@ def verify(ctx, config):
             ctx.s2s_call_reason = 'no_cookie'
             return False
 
-        if not config.cookie_key:
+        if not config.cookie_secret:
             logger.debug('No cookie key found, stopping cookie evaluation')
             ctx['s2s_call_reason'] = 'no_cookie_key'
             return False

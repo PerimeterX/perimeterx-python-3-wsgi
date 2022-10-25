@@ -14,9 +14,9 @@ class TestPxRequestVerifier(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_BLOCKING
+        cls.config = PxConfig({'px_app_id': 'PXfake_app_id',
+                               'px_auth_token': '',
+                               'px_module_mode': px_constants.MODULE_MODE_BLOCKING
                                })
         cls.headers = {'X-FORWARDED-FOR': '127.0.0.1',
                        'remote-addr': '127.0.0.1',
@@ -44,7 +44,7 @@ class TestPxRequestVerifier(unittest.TestCase):
         self.assertEqual(response, True)
 
     def test_verify_whitelist(self):
-        config = PxConfig({'app_id': 'PXfake_app_id', 'whitelist_routes': ['whitelisted']})
+        config = PxConfig({'px_app_id': 'PXfake_app_id', 'px_filter_by_route': ['/whitelisted']})
         builder = EnvironBuilder(headers=self.headers, path='/whitelisted')
         env = builder.get_environ()
         request = Request(env)
@@ -53,30 +53,31 @@ class TestPxRequestVerifier(unittest.TestCase):
         self.assertEqual(response, True)
 
     def test_handle_verification_pass(self):
-        config = PxConfig({'app_id': 'PXfake_app_id', 'whitelist_routes': ['whitelisted']})
+        config = PxConfig({'px_app_id': 'PXfake_app_id', 'px_filter_by_route': ['/whitelisted']})
         builder = EnvironBuilder(headers=self.headers, path='/whitelisted')
         env = builder.get_environ()
         request = Request(env)
         context = PxContext(request, config)
         context.score = 50
-        response = self.request_handler.handle_verification(context, request)
+        response = self.request_handler.verify_request(context, request)
         self.assertEqual(response, True)
 
     def test_handle_verification_failed(self):
-        config = PxConfig({'app_id': 'PXfake_app_id', 'whitelist_routes': ['whitelisted']})
+        config = PxConfig({'px_app_id': 'PXfake_app_id', 'px_filter_by_route': ['/whitelisted']})
         builder = EnvironBuilder(headers=self.headers, path='/whitelisted')
         env = builder.get_environ()
+        request_handler = PxRequestVerifier(config)
         request = Request(env)
         context = PxContext(request, config)
         context.score = 100
-        response = self.request_handler.handle_verification(context, request)
-        self.assertEqual(response.status, '403 Forbidden')
+        response = request_handler.verify_request(context, request)
+        self.assertEqual(response, True)
 
     def test_handle_monitor(self):
-        config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_MONITORING
-                               });
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_MONITORING
+                           })
         request_handler = PxRequestVerifier(config)
         builder = EnvironBuilder(headers=self.headers, path='/')
         env = builder.get_environ()
@@ -87,15 +88,15 @@ class TestPxRequestVerifier(unittest.TestCase):
         self.assertEqual(response, True)
 
     def test_bypass_monitor_header_enabled(self):
-        config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_MONITORING,
-                               'bypass_monitor_header': 'x-px-block'
-                               });
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_MONITORING,
+                           'px_bypass_monitor_header': 'x-px-block'
+                           });
         headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                       'remote-addr': '127.0.0.1',
-                       'x-px-block': '1',
-                       'content_length': '100'}
+                   'remote-addr': '127.0.0.1',
+                   'x-px-block': '1',
+                   'content_length': '100'}
         request_handler = PxRequestVerifier(config)
         builder = EnvironBuilder(headers=headers, path='/')
         env = builder.get_environ()
@@ -106,15 +107,15 @@ class TestPxRequestVerifier(unittest.TestCase):
         self.assertEqual(response.status, '403 Forbidden')
 
     def test_bypass_monitor_header_disabled(self):
-        config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_MONITORING,
-                               'bypass_monitor_header': 'x-px-block'
-                               });
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_MONITORING,
+                           'px_bypass_monitor_header': 'x-px-block'
+                           });
         headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                       'remote-addr': '127.0.0.1',
-                       'x-px-block': '0',
-                       'content_length': '100'}
+                   'remote-addr': '127.0.0.1',
+                   'x-px-block': '0',
+                   'content_length': '100'}
         request_handler = PxRequestVerifier(config)
         builder = EnvironBuilder(headers=headers, path='/')
         env = builder.get_environ()
@@ -125,14 +126,14 @@ class TestPxRequestVerifier(unittest.TestCase):
         self.assertEqual(response, True)
 
     def test_bypass_monitor_header_configured_but_missing(self):
-        config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_MONITORING,
-                               'bypass_monitor_header': 'x-px-block'
-                               });
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_MONITORING,
+                           'px_bypass_monitor_header': 'x-px-block'
+                           });
         headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                       'remote-addr': '127.0.0.1',
-                       'content_length': '100'}
+                   'remote-addr': '127.0.0.1',
+                   'content_length': '100'}
         request_handler = PxRequestVerifier(config)
         builder = EnvironBuilder(headers=headers, path='/')
         env = builder.get_environ()
@@ -143,15 +144,15 @@ class TestPxRequestVerifier(unittest.TestCase):
         self.assertEqual(response, True)
 
     def test_bypass_monitor_header_on_valid_request(self):
-        config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_MONITORING,
-                               'bypass_monitor_header': 'x-px-block'
-                               });
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_MONITORING,
+                           'px_bypass_monitor_header': 'x-px-block'
+                           })
         headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                       'remote-addr': '127.0.0.1',
-                       'x-px-block': '1',
-                       'content_length': '100'}
+                   'remote-addr': '127.0.0.1',
+                   'x-px-block': '1',
+                   'content_length': '100'}
         request_handler = PxRequestVerifier(config)
         builder = EnvironBuilder(headers=headers, path='/')
         env = builder.get_environ()
@@ -162,68 +163,68 @@ class TestPxRequestVerifier(unittest.TestCase):
         self.assertEqual(response, True)
 
     def test_specific_enforced_routes_with_enforced_route(self):
-      config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_BLOCKING,
-                               'enforced_specific_routes': ['/profile'],
-                               });
-      headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                     'remote-addr': '127.0.0.1',
-                     'content_length': '100'}
-      request_handler = PxRequestVerifier(config)
-      builder = EnvironBuilder(headers=headers, path='/profile')
-      env = builder.get_environ()
-      request = Request(env)
-      context = PxContext(request, request_handler.config)
-      context.score = 100
-      response = request_handler.handle_verification(context, request)
-      self.assertEqual(response.status, '403 Forbidden')
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_enforced_routesspecific_routes': ['/profile'],
+                           })
+        headers = {'X-FORWARDED-FOR': '127.0.0.1',
+                   'remote-addr': '127.0.0.1',
+                   'content_length': '100'}
+        request_handler = PxRequestVerifier(config)
+        builder = EnvironBuilder(headers=headers, path='/profile')
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, request_handler.config)
+        context.score = 100
+        response = request_handler.handle_verification(context, request)
+        self.assertEqual(response.status, '403 Forbidden')
 
     def test_specific_enforced_routes_with_enforced_route_regex(self):
-      config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_BLOCKING,
-                               'enforced_specific_routes_regex': [r'^/profile$'],
-                               });
-      headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                     'remote-addr': '127.0.0.1',
-                     'content_length': '100'}
-      request_handler = PxRequestVerifier(config)
-      builder = EnvironBuilder(headers=headers, path='/profile')
-      env = builder.get_environ()
-      request = Request(env)
-      context = PxContext(request, request_handler.config)
-      context.score = 100
-      response = request_handler.handle_verification(context, request)
-      self.assertEqual(response.status, '403 Forbidden')
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_enforced_routes_regex': [r'^/profile$'],
+                           })
+        headers = {'X-FORWARDED-FOR': '127.0.0.1',
+                   'remote-addr': '127.0.0.1',
+                   'content_length': '100'}
+        request_handler = PxRequestVerifier(config)
+        builder = EnvironBuilder(headers=headers, path='/profile')
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, request_handler.config)
+        context.score = 100
+        response = request_handler.handle_verification(context, request)
+        self.assertEqual(response.status, '403 Forbidden')
 
     def test_specific_enforced_routes_with_unenforced_route(self):
-      config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_BLOCKING,
-                               'enforced_specific_routes': ['/profile'],
-                               });
-      headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                     'remote-addr': '127.0.0.1',
-                     'content_length': '100'}
-      request_handler = PxRequestVerifier(config)
-      builder = EnvironBuilder(headers=headers, path='/')
-      env = builder.get_environ()
-      request = Request(env)
-      context = PxContext(request, request_handler.config)
-      context.score = 100
-      response = request_handler.verify_request(context, request)
-      self.assertEqual(response, True)
-
-      def test_specific_enforced_routes_with_unenforced_route_regex(self):
-        config = PxConfig({'app_id': 'PXfake_app_id',
-                                 'auth_token': '',
-                                 'module_mode': px_constants.MODULE_MODE_BLOCKING,
-                                 'enforced_specific_routes_regex': [r'^/profile$'],
-                                 });
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_enforced_routesspecific_routes': ['/profile'],
+                           })
         headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                       'remote-addr': '127.0.0.1',
-                       'content_length': '100'}
+                   'remote-addr': '127.0.0.1',
+                   'content_length': '100'}
+        request_handler = PxRequestVerifier(config)
+        builder = EnvironBuilder(headers=headers, path='/')
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, request_handler.config)
+        context.score = 100
+        response = request_handler.verify_request(context, request)
+        self.assertEqual(response, True)
+
+    def test_specific_enforced_routes_with_unenforced_route_regex(self):
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_enforced_routes_regex': [r'^/profile$'],
+                           })
+        headers = {'X-FORWARDED-FOR': '127.0.0.1',
+                   'remote-addr': '127.0.0.1',
+                   'content_length': '100'}
         request_handler = PxRequestVerifier(config)
         builder = EnvironBuilder(headers=headers, path='/')
         env = builder.get_environ()
@@ -234,145 +235,146 @@ class TestPxRequestVerifier(unittest.TestCase):
         self.assertEqual(response, True)
 
     def test_monitor_specific_routes_in_blocking_mode(self):
-      config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_BLOCKING,
-                               'monitored_specific_routes': ['/profile'],
-                               });
-      headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                     'remote-addr': '127.0.0.1',
-                     'content_length': '100'}
-      request_handler = PxRequestVerifier(config)
-      builder = EnvironBuilder(headers=headers, path='/profile')
-      env = builder.get_environ()
-      request = Request(env)
-      context = PxContext(request, request_handler.config)
-      response = request_handler.verify_request(context, request)
-      self.assertEqual(context.monitored_route, True)
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_monitored_routes': ['/profile'],
+                           })
+        headers = {'X-FORWARDED-FOR': '127.0.0.1',
+                   'remote-addr': '127.0.0.1',
+                   'content_length': '100'}
+        request_handler = PxRequestVerifier(config)
+        builder = EnvironBuilder(headers=headers, path='/profile')
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, request_handler.config)
+        response = request_handler.verify_request(context, request)
+        self.assertEqual(context.monitored_route, True)
+        self.assertEqual(response, True)
 
     def test_monitor_specific_routes_in_blocking_mode_regex(self):
-      config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_BLOCKING,
-                               'monitored_specific_routes_regex': [r'^/profile$'],
-                               });
-      headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                     'remote-addr': '127.0.0.1',
-                     'content_length': '100'}
-      request_handler = PxRequestVerifier(config)
-      builder = EnvironBuilder(headers=headers, path='/profile')
-      env = builder.get_environ()
-      request = Request(env)
-      context = PxContext(request, request_handler.config)
-      response = request_handler.verify_request(context, request)
-      self.assertEqual(context.monitored_route, True)
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_monitored_routes_regex': [r'^/profile$'],
+                           });
+        headers = {'X-FORWARDED-FOR': '127.0.0.1',
+                   'remote-addr': '127.0.0.1',
+                   'content_length': '100'}
+        request_handler = PxRequestVerifier(config)
+        builder = EnvironBuilder(headers=headers, path='/profile')
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, request_handler.config)
+        response = request_handler.verify_request(context, request)
+        self.assertEqual(context.monitored_route, True)
 
     def test_monitor_specific_routes_in_blocking_mode_should_block_other_routes(self):
-      config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_BLOCKING,
-                               'monitored_specific_routes': ['/profile'],
-                               });
-      headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                     'remote-addr': '127.0.0.1',
-                     'content_length': '100'}
-      request_handler = PxRequestVerifier(config)
-      builder = EnvironBuilder(headers=headers, path='/')
-      env = builder.get_environ()
-      request = Request(env)
-      context = PxContext(request, request_handler.config)
-      context.score = 100
-      response = request_handler.handle_verification(context, request)
-      self.assertEqual(response.status, '403 Forbidden')
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_monitored_routes': ['/profile'],
+                           });
+        headers = {'X-FORWARDED-FOR': '127.0.0.1',
+                   'remote-addr': '127.0.0.1',
+                   'content_length': '100'}
+        request_handler = PxRequestVerifier(config)
+        builder = EnvironBuilder(headers=headers, path='/')
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, request_handler.config)
+        context.score = 100
+        response = request_handler.handle_verification(context, request)
+        self.assertEqual(response.status, '403 Forbidden')
 
     def test_monitor_specific_routes_in_blocking_mode_should_block_other_routes_regex(self):
-      config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_BLOCKING,
-                               'monitored_specific_routes_regex': [r'^/profile$'],
-                               });
-      headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                     'remote-addr': '127.0.0.1',
-                     'content_length': '100'}
-      request_handler = PxRequestVerifier(config)
-      builder = EnvironBuilder(headers=headers, path='/profile/me')
-      env = builder.get_environ()
-      request = Request(env)
-      context = PxContext(request, request_handler.config)
-      context.score = 100
-      response = request_handler.handle_verification(context, request)
-      self.assertEqual(response.status, '403 Forbidden')
-
-    def test_enforced_specific_routes_overrides_monitor_specific_routes(self):
-      config = PxConfig({'app_id': 'PXfake_app_id',
-                             'auth_token': '',
-                             'module_mode': px_constants.MODULE_MODE_BLOCKING,
-                             'monitored_specific_routes': ['/profile'],
-                             'enforced_specific_routes': ['/profile', '/login'],
-                             });
-      headers = {'X-FORWARDED-FOR': '127.0.0.1',
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_monitored_routes_regex': [r'^/profile$'],
+                           });
+        headers = {'X-FORWARDED-FOR': '127.0.0.1',
                    'remote-addr': '127.0.0.1',
                    'content_length': '100'}
-      request_handler = PxRequestVerifier(config)
-      builder = EnvironBuilder(headers=headers, path='/profile')
-      env = builder.get_environ()
-      request = Request(env)
-      context = PxContext(request, request_handler.config)
-      context.score = 100
-      response = request_handler.handle_verification(context, request)
-      self.assertEqual(response.status, '403 Forbidden')
+        request_handler = PxRequestVerifier(config)
+        builder = EnvironBuilder(headers=headers, path='/profile/me')
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, request_handler.config)
+        context.score = 100
+        response = request_handler.handle_verification(context, request)
+        self.assertEqual(response.status, '403 Forbidden')
 
-    def test_enforced_specific_routes_overrides_monitor_specific_routes(self):
-      config = PxConfig({'app_id': 'PXfake_app_id',
-                             'auth_token': '',
-                             'module_mode': px_constants.MODULE_MODE_BLOCKING,
-                             'monitored_specific_routes_regex': [r'^/profile$'],
-                             'enforced_specific_routes_regex': [r'^/profile$', r'^/login$'],
-                             });
-      headers = {'X-FORWARDED-FOR': '127.0.0.1',
+    def test_enforced_routes_doesnt_override_monitor_specific_routes(self):
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_monitored_routes': ['/profile'],
+                           'px_enforced_routes': ['/profile', '/login'],
+                           })
+        headers = {'X-FORWARDED-FOR': '127.0.0.1',
                    'remote-addr': '127.0.0.1',
                    'content_length': '100'}
-      request_handler = PxRequestVerifier(config)
-      builder = EnvironBuilder(headers=headers, path='/profile')
-      env = builder.get_environ()
-      request = Request(env)
-      context = PxContext(request, request_handler.config)
-      context.score = 100
-      response = request_handler.handle_verification(context, request)
-      self.assertEqual(response.status, '403 Forbidden')
+        request_handler = PxRequestVerifier(config)
+        builder = EnvironBuilder(headers=headers, path='/profile')
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, request_handler.config)
+        context.score = 100
+        response = request_handler.handle_verification(context, request)
+        self.assertEqual(response, True)
+
+    def test_enforced_routes_doesnt_override_monitor_specific_routes(self):
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_monitored_routes_regex': [r'^/profile$'],
+                           'px_enforced_routes_regex': [r'^/profile$', r'^/login$'],
+                           })
+        headers = {'X-FORWARDED-FOR': '127.0.0.1',
+                   'remote-addr': '127.0.0.1',
+                   'content_length': '100'}
+        request_handler = PxRequestVerifier(config)
+        builder = EnvironBuilder(headers=headers, path='/profile')
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, request_handler.config)
+        context.score = 100
+        response = request_handler.handle_verification(context, request)
+        self.assertEqual(response, True)
 
     def test_monitor_specific_routes_with_enforced_specific_routes(self):
-      config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_BLOCKING,
-                               'monitored_specific_routes': ['/profile'],
-                                'enforced_specific_routes': ['/login'],
-                               });
-      headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                     'remote-addr': '127.0.0.1',
-                     'content_length': '100'}
-      request_handler = PxRequestVerifier(config)
-      builder = EnvironBuilder(headers=headers, path='/profile')
-      env = builder.get_environ()
-      request = Request(env)
-      context = PxContext(request, request_handler.config)
-      response = request_handler.verify_request(context, request)
-      self.assertEqual(context.monitored_route, True)
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_monitored_routes': ['/profile'],
+                           'px_enforced_routes': ['/login'],
+                           });
+        headers = {'X-FORWARDED-FOR': '127.0.0.1',
+                   'remote-addr': '127.0.0.1',
+                   'content_length': '100'}
+        request_handler = PxRequestVerifier(config)
+        builder = EnvironBuilder(headers=headers, path='/profile')
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, request_handler.config)
+        response = request_handler.verify_request(context, request)
+        self.assertEqual(context.monitored_route, True)
 
     def test_monitor_specific_routes_with_enforced_specific_routes_regex(self):
-      config = PxConfig({'app_id': 'PXfake_app_id',
-                               'auth_token': '',
-                               'module_mode': px_constants.MODULE_MODE_BLOCKING,
-                               'monitored_specific_routes_regex': [r'^/profile$'],
-                                'enforced_specific_routes_regex': [r'^/login$'],
-                               });
-      headers = {'X-FORWARDED-FOR': '127.0.0.1',
-                     'remote-addr': '127.0.0.1',
-                     'content_length': '100'}
-      request_handler = PxRequestVerifier(config)
-      builder = EnvironBuilder(headers=headers, path='/profile')
-      env = builder.get_environ()
-      request = Request(env)
-      context = PxContext(request, request_handler.config)
-      response = request_handler.verify_request(context, request)
-      self.assertEqual(context.monitored_route, True)
+        config = PxConfig({'px_app_id': 'PXfake_app_id',
+                           'px_auth_token': '',
+                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_monitored_routes_regex': [r'^/profile$'],
+                           'px_enforced_specific_routes_regex': [r'^/login$'],
+                           });
+        headers = {'X-FORWARDED-FOR': '127.0.0.1',
+                   'remote-addr': '127.0.0.1',
+                   'content_length': '100'}
+        request_handler = PxRequestVerifier(config)
+        builder = EnvironBuilder(headers=headers, path='/profile')
+        env = builder.get_environ()
+        request = Request(env)
+        context = PxContext(request, request_handler.config)
+        response = request_handler.verify_request(context, request)
+        self.assertEqual(context.monitored_route, True)

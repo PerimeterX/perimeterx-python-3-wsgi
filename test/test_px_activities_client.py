@@ -11,7 +11,7 @@
 #
 #     @mock.patch('perimeterx.px_activities_client.send_to_perimeterx')
 #     def test_send_to_perimeterx(self, mocked_event):
-#         config = PxConfig({'app_id': 'fake_app_id'})
+#         config = PxConfig({'px_app_id': 'fake_app_id'})
 #         context = PxContext({}, config)
 #         context.score = 100
 #         context.uuid = 'uuid'

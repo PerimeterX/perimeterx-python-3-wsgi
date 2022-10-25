@@ -78,7 +78,7 @@ class PXBlocker(object):
         captcha_uri = 'captcha.js?a={}&u={}&v={}&m={}'.format(ctx.block_action, uuid, vid, is_mobile_num)
         alt_captcha_src = '//{}/{}/{}'.format(px_constants.ALT_CAPTCHA_HOST, app_id, captcha_uri)
 
-        if config.first_party and not ctx.is_mobile:
+        if config.first_party_enabled and not ctx.is_mobile:
             prefix = app_id[2:]
             js_client_src = '/{}/{}'.format(prefix, px_constants.CLIENT_FP_PATH)
             captcha_src = '/{}/{}/{}'.format(prefix, px_constants.CAPTCHA_FP_PATH, captcha_uri)
@@ -97,7 +97,7 @@ class PXBlocker(object):
             'jsRef': config.js_ref,
             'hostUrl': host_url,
             'jsClientSrc': js_client_src,
-            'firstPartyEnabled': 'true' if config.first_party else 'false',
+            'firstPartyEnabled': 'true' if config.first_party_enabled else 'false',
             'blockScript': captcha_src,
             'altBlockScript': alt_captcha_src
         }

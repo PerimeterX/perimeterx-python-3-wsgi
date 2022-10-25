@@ -11,9 +11,9 @@ class TestPXOriginalTokenValidator(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.cookie_key = 'Pyth0nS3crE7K3Y'
-        cls.config = PxConfig({'app_id': 'app_id',
-                               'cookie_key': cls.cookie_key})
+        cls.cookie_secret = 'Pyth0nS3crE7K3Y'
+        cls.config = PxConfig({'px_app_id': 'app_id',
+                               'px_cookie_secret': cls.cookie_secret})
         cls.headers = {'X-FORWARDED-FOR': '127.0.0.1',
                        'remote-addr': '127.0.0.1',
                        'content_length': '100',

@@ -5,7 +5,7 @@
 
 [PerimeterX](http://www.perimeterx.com) Python 3 Middleware
 =============================================================
-> Latest stable version: [v1.2.0](https://pypi.org/project/perimeterx-python-3-wsgi/)
+> Latest stable version: [v2.0.0](https://pypi.org/project/perimeterx-python-3-wsgi/)
 
 Table of Contents
 -----------------
@@ -30,7 +30,7 @@ Table of Contents
     * [Sensitive Headers](#sensitive_headers)
     * [IP Headers](#ip_headers)
     * [First-Party Enabled](#first_party_enabled)
-    * [Custom Request Handler](#custom_request_handler)
+    * [Custom Request Handler](#custom_verification_handler)
     * [Additional Activity Handler](#additional_activity_handler)
     * [Px Disable Request](#px_disable_request)
     * [Test Block Flow on Monitoring Mode](#bypass_monitor_header)
@@ -58,9 +58,9 @@ To use PerimeterX middleware on a specific route follow this example:
 from perimeterx.middleware import PerimeterX
 
 px_config = {
-    'app_id': 'APP_ID',
-    'cookie_key': 'COOKIE_KEY',
-    'auth_token': 'AUTH_TOKEN',
+    'px_app_id': 'APP_ID',
+    'px_cookie_secret': 'COOKIE_SECRET',
+    'px_auth_token': 'AUTH_TOKEN',
 }
 application = get_wsgi_application()
 application = PerimeterX(application, px_config)
@@ -81,7 +81,7 @@ A boolean flag to enable/disable the PerimeterX Enforcer.
 ```python
 config = {
   ...
-  module_enabled: False
+  px_module_enabled: False
   ...
 }
 ```
@@ -98,7 +98,7 @@ Possible values:
 ```python
 config = {
   ...
-  module_mode: 'active_blocking'
+  px_module_mode: 'active_blocking'
   ...
 }
 ```
@@ -113,7 +113,7 @@ Possible values:
 ```python
 config = {
   ...
-  blocking_score: 100
+  px_blocking_score: 100
   ...
 }
 ```
@@ -132,16 +132,18 @@ config = {
 }
 ```
 
-#### <a name="debug_mode"></a>Debug Mode
+#### <a name="logger_severity"></a>Logger Severity
 
-Enable/disable the debug log messages.
+The severity level at which the logger should output logs
+'error' - PerimeterX logger will log errors only on fatal events (e.g., uncaught errors)
+'debug' - PerimeterX logger will output detailed logs for debugging purposes
 
-**Default:** False
+**Default:** 'error'
 
 ```python
 config = {
   ...
-  debug_mode: True
+  px_logger_severity: 'debug'
   ...
 }
 ```
@@ -154,7 +156,7 @@ An array of route prefixes that trigger a server call to PerimeterX servers ever
 ```python
 config = {
   ...
-  sensitive_routes: ['/login', '/user/checkout']
+  px_sensitive_routes: ['/login', '/user/checkout']
   ...
 }
 ```
@@ -168,12 +170,12 @@ An array of regex patterns that trigger a server call to PerimeterX servers ever
 ```python
 config = {
   ...
-  sensitive_routes_regex: [r'^/login$', r'^/user']
+  px_sensitive_routes_regex: [r'^/login$', r'^/user']
   ...
 }
 ```
 
-#### <a name="whitelist_routes"></a> Whitelist Routes
+#### <a name="filtered_routes"></a> Filter By Routes
 
 An array of route prefixes which will bypass enforcement (will never get scored).
 
@@ -182,7 +184,7 @@ An array of route prefixes which will bypass enforcement (will never get scored)
 ```python
 config = {
   ...
-  whitelist_routes: ['/about-us', '/careers']
+  px_filter_by_route: ['/about-us', '/careers']
   ...
 }
 ```
@@ -211,7 +213,7 @@ When this property is set, any route which is not added - will be whitelisted.
 ```python
 config = {
   ...
-  enforced_specific_routes: ['/profile']
+  px_enforced_routes: ['/profile']
   ...
 };
 ```
@@ -226,7 +228,7 @@ When this property is set, any route which is not added - will be whitelisted.
 ```python
 config = {
   ...
-  enforced_specific_routes_regex: [r'^/profile$']
+  px_enforced_routes_regex: [r'^/profile$']
   ...
 };
 ```
@@ -240,7 +242,7 @@ An array of route prefixes that are always set to be in [monitor mode](#module_m
 ```python
 config = {
   ...
-  monitored_specific_routes: ['/profile']
+  px_monitored_routes: ['/profile']
   ...
 };
 ```
@@ -254,7 +256,7 @@ An array of regex patterns that are always set to be in [monitor mode](#module_m
 ```python
 config = {
   ...
-  monitored_specific_routes_regex: [r'^/profile/me$']
+  px_monitored_routes_regex: [r'^/profile/me$']
   ...
 };
 ```
@@ -268,7 +270,7 @@ An array of headers that are not sent to PerimeterX servers on API calls.
 ```python
 config = {
   ...
-  sensitive_headers: ['cookie', 'cookies', 'x-sensitive-header']
+  px_sensitive_headers: ['cookie', 'cookies', 'x-sensitive-header']
   ...
 }
 ```
@@ -282,7 +284,7 @@ An array of trusted headers that specify an IP to be extracted.
 ```python
 config = {
   ...
-  ip_headers: ['x-user-real-ip']
+  px_ip_headers: ['x-user-real-ip']
   ...
 }
 ```
@@ -296,12 +298,12 @@ Enable/disable First-Party mode.
 ```python
 config = {
   ...
-  first_party: False
+  px_first_party_enabled: False
   ...
 }
 ```
 
-#### <a name="custom_request_handler"></a>Custom Request Handler
+#### <a name="custom_verification_handler"></a>Custom Verification Handler
 
 A Python function that adds a custom response handler to the request.</br>
 You must declare the function before using it in the config.</br>
@@ -313,7 +315,7 @@ The custom function should handle the response (most likely it will create a new
 ```python
 config = {
   ...
-  custom_request_handler: custom_request_handler_function,
+  px_custom_verification_handler: custom_verification_handler_function,
   ...
 }
 ```
@@ -326,7 +328,7 @@ A Python function that allows interaction with the request data collected by Per
 ```python
 config = {
   ...
-  additional_activity_handler: additional_activity_handler_function,
+  px_additional_activity_handler: additional_activity_handler_function,
   ...
 }
 ```
@@ -362,14 +364,14 @@ Allows you to test an enforcer’s blocking flow while you are still in Monitor 
 When the header name is set(eg. `x-px-block`) and the value is set to `1`, when there is a block response (for example from using a User-Agent header with the value of `PhantomJS/1.0`) the Monitor Mode is bypassed and full block mode is applied. If one of the conditions is missing you will stay in Monitor Mode. This is done per request.
 To stay in Monitor Mode, set the header value to `0`.
 
-The Header Name is configurable using the `bypass_monitor_header` property.
+The Header Name is configurable using the `px_bypass_monitor_header` property.
 
 **Default:** Empty
 
 ```python
 config = {
   ...
-  bypass_monitor_header: 'x-px-block',
+  px_bypass_monitor_header: 'x-px-block',
   ...
 }
 ```

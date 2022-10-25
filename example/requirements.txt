@@ -1,0 +1,6 @@
+Django==1.11.17
+gunicorn==19.9.0
+requests==2.18.2
+Werkzeug==0.14.1
+pystache==0.5.4
+requests-toolbelt==0.7.0

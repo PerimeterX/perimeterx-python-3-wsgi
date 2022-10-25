@@ -9,7 +9,7 @@ class PxCookieV3(PxCookie):
         self._logger = config.logger
         self._user_agent = user_agent
         spliced_cookie = cookie.split(':')
-        if len(spliced_cookie) is 4:
+        if len(spliced_cookie) == 4:
             self._hmac = spliced_cookie[0]
             self._raw_cookie = ':'.join(spliced_cookie[1:])
         else:

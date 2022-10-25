@@ -26,7 +26,7 @@ class Test_PXApi(unittest.TestCase):
         return params
 
     def test_prepare_risk_body(self):
-        config = PxConfig({'app_id': 'app_id', 'enrich_custom_parameters': self.enrich_custom_parameters})
+        config = PxConfig({'px_app_id': 'app_id', 'px_enrich_custom_parameters': self.enrich_custom_parameters})
         builder = EnvironBuilder(headers=self.headers, path='/')
 
         env = builder.get_environ()
@@ -39,24 +39,24 @@ class Test_PXApi(unittest.TestCase):
         self.assertFalse(body['additional'].get('custom'))
 
     def test_send_risk_request(self):
-        config = PxConfig({'app_id': 'app_id',
-                           'enrich_custom_parameters': self.enrich_custom_parameters,
-                           'auth_token': 'auth'})
+        config = PxConfig({'px_app_id': 'app_id',
+                           'px_enrich_custom_parameters': self.enrich_custom_parameters,
+                           'px_auth_token': 'auth'})
         builder = EnvironBuilder(headers=self.headers, path='/test_path')
 
         env = builder.get_environ()
         request = Request(env)
         context = PxContext(request, config)
         uuid_val = str(uuid.uuid4())
-        response = ResponseMock({'score': 100, 'uuid': uuid_val, 'action': 'c'})
+        response = ResponseMock({'score': 100, 'uuid': uuid_val, 'action': 'c', 'status': 0}, 200)
         with mock.patch('perimeterx.px_httpc.send', return_value=response):
             response = px_api.send_risk_request(context, config)
-            self.assertEqual({'action': 'c', 'score': 100, 'uuid': uuid_val}, response)
+            self.assertEqual({'action': 'c', 'score': 100, 'uuid': uuid_val, 'status': 0}, response)
 
     def test_verify(self):
-        config = PxConfig({'app_id': 'app_id',
-                           'enrich_custom_parameters': self.enrich_custom_parameters,
-                           'auth_token': 'auth'})
+        config = PxConfig({'px_app_id': 'app_id',
+                           'px_enrich_custom_parameters': self.enrich_custom_parameters,
+                           'px_auth_token': 'auth'})
         builder = EnvironBuilder(headers=self.headers, path='/test_path')
 
         env = builder.get_environ()
@@ -75,5 +75,6 @@ class Test_PXApi(unittest.TestCase):
 
 
 class ResponseMock(object):
-    def __init__(self, dict):
+    def __init__(self, dict, status_code):
         self.content = json.dumps(dict)
+        self.status_code = status_code

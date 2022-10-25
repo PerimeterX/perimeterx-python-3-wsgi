@@ -51,7 +51,7 @@ class PxProxy(object):
         return px_response
 
     def send_reverse_client_request(self, config, ctx):
-        if not config.first_party:
+        if not config.first_party_enabled:
             headers = {'Content-Type': 'application/javascript'}
             return '200 OK', headers, ''
 
@@ -77,7 +77,7 @@ class PxProxy(object):
 
     def send_reverse_xhr_request(self, config, ctx, body):
         uri = ctx.uri
-        if not config.first_party or not config.first_party_xhr_enabled:
+        if not config.first_party_enabled or not config.first_party_xhr_enabled:
             body, response_headers = self.return_default_response(uri)
             return '200 OK', response_headers, body
 
@@ -108,7 +108,7 @@ class PxProxy(object):
         return status, headers, data
 
     def send_reverse_captcha_request(self, config, ctx):
-        if not config.first_party:
+        if not config.first_party_enabled:
             status = '200 OK'
             response_headers = {'Content-Type': 'application/javascript'}
             return status, response_headers, ''

@@ -9,7 +9,7 @@ class TestPXCookie(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        config = PxConfig({'app_id': 'fake_app_id'})
+        config = PxConfig({'px_app_id': 'fake_app_id'})
         cls.px_cookie = PxCookie(config)
         cls.config = config
 

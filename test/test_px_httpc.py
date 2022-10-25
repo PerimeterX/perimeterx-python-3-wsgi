@@ -7,7 +7,7 @@ from perimeterx.px_config import PxConfig
 class TestPXHttpc(unittest.TestCase):
     def test_send(self):
         with requests_mock.mock() as m:
-            config = PxConfig({'app_id': 'PXfake_app_id'})
+            config = PxConfig({'px_app_id': 'PXfake_app_id'})
             full_url = 'this_url.com/uri'
             method = 'POST'
             body = 'content to post'

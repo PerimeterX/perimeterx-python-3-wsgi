@@ -14,7 +14,7 @@ class Test_PXProxy(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.config = PxConfig({'app_id': 'PXfake_app_id'})
+        cls.config = PxConfig({'px_app_id': 'PXfake_app_id'})
         cls.headers = {'X-FORWARDED-FOR': '127.0.0.1',
                        'remote-addr': '127.0.0.1',
                        'content_length': '100'}

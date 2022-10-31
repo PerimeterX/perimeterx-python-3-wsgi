@@ -51,7 +51,7 @@ To upgrade to the latest PerimeterX Enforcer version, run:
 
 For more information, contact [PerimeterX Support](support@perimeterx.com).
 
-## <a name="required_config"></a> Required Configurations
+## <a name="required_config"></a> Basic Configurations
 To use PerimeterX middleware on a specific route follow this example:
 
 ```python
@@ -66,11 +66,11 @@ application = get_wsgi_application()
 application = PerimeterX(application, px_config)
 ```
 - The PerimeterX **Application ID** / **AppId** and PerimeterX **Token** / **Auth Token** can be found in the Portal, in [Applications](https://console.perimeterx.com/botDefender/admin?page=applicationsmgmt).
-- PerimeterX **Risk Cookie** / **Cookie Key** can be found in the portal, in [Policies](https://console.perimeterx.com/botDefender/admin?page=policiesmgmt).
-The Policy from where the **Risk Cookie** / **Cookie Key** is taken must correspond with the Application from where the **Application ID** / **AppId** and PerimeterX **Token** / **Auth Token**.
+- PerimeterX **Risk Cookie** / **Cookie Secret** can be found in the portal, in [Policies](https://console.perimeterx.com/botDefender/admin?page=policiesmgmt).
+The Policy from where the **Risk Cookie** / **Cookie Secret** is taken must correspond with the Application from where the **Application ID** / **AppId** and PerimeterX **Token** / **Auth Token**.
 For details on how to create a custom Captcha page, refer to the [documentation](https://docs.perimeterx.com/pxconsole/docs/customize-challenge-page)
 
-## <a name="configuration"></a>Optional Configuration
+## <a name="configuration"></a>Advanced Configuration
 In addition to the basic installation configuration [above](#required_config), the following configurations options are available:
 
 #### <a name="module_enabled"></a>Module Enabled
@@ -127,7 +127,7 @@ Enabling this feature allows data to populate the PerimeterX Portal with valuabl
 ```python
 config = {
   ...
-  send_page_activities: True
+  px_send_page_activities: True
   ...
 }
 ```
@@ -198,7 +198,7 @@ An array of regex patterns which will bypass enforcement (will never get scored)
 ```python
 config = {
   ...
-  whitelist_routes_regex: [r'^/about']
+  px_filter_by_route_regex: [r'^/about']
   ...
 }
 ```

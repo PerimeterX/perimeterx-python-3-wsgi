@@ -1,6 +1,6 @@
 setuptools==41.4.0
 requests>=2.22.0
-Werkzeug==0.16.0
+Werkzeug==2.2.3
 pystache>=0.5.4
 pycryptodome>=3.9.0
 

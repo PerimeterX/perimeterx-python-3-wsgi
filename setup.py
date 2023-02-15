@@ -13,6 +13,6 @@ setup(name='perimeterx-python-3-wsgi',
       download_url='https://github.com/PerimeterX/perimeterx-python-3-wsgi/tarball/' + version,
       packages=find_packages(exclude=['dev', 'test*']),
       package_data={'perimeterx': ['templates/*', "*.json"]},
-      install_requires=['pystache>=0.5.4', 'requests>=2.22.0', 'setuptools==41.4.0', 'Werkzeug==0.16.0', 'pycryptodome>=3.9.0'],
+      install_requires=['pystache>=0.5.4', 'requests>=2.22.0', 'setuptools==41.4.0', 'Werkzeug==2.2.3', 'pycryptodome>=3.9.0'],
       classifiers=['Intended Audience :: Developers',
                    'Programming Language :: Python :: 3.7'])

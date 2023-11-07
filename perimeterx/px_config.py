@@ -241,11 +241,16 @@ class PxConfig(object):
     def url_decode_reserved_characters(self):
         return self._url_decode_reserved_characters
 
+    @property
+    def filter_by_custom_function(self):
+        return self._filter_by_custom_function
+
     def __instantiate_user_defined_handlers(self, config_dict):
         self._custom_verification_handler = self.__set_handler('px_custom_verification_handler', config_dict)
         self._get_user_ip = self.__set_handler('get_user_ip', config_dict)
         self._additional_activity_handler = self.__set_handler('px_additional_activity_handler', config_dict)
         self._enrich_custom_parameters = self.__set_handler('px_enrich_custom_parameters', config_dict)
+        self._filter_by_custom_function = self.__set_handler('px_filter_by_custom_function', config_dict);
 
     def __set_handler(self, function_name, config_dict):
         return config_dict.get(function_name) if config_dict.get(function_name) and callable(

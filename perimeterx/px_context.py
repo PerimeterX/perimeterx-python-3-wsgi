@@ -52,6 +52,7 @@ class PxContext(object):
         user_agent = request.user_agent.string
 
         http_protocol = None
+        http_version = None
         protocol_split = request.environ.get('SERVER_PROTOCOL', '').split('/')
         if protocol_split[0].startswith('HTTP'):
             http_protocol = protocol_split[0].lower() + '://'
@@ -66,8 +67,8 @@ class PxContext(object):
             uri = request.path
             full_url = request.url
         hostname = request.host
+        is_filtered = is_filtered_request(config, request)
         sensitive_route = sum(1 for _ in filter(lambda sensitive_route_item: re.match(sensitive_route_item, uri), config.sensitive_routes_regex)) > 0 or sum(1 for _ in filter(lambda sensitive_route_item: uri == sensitive_route_item, config.sensitive_routes)) > 0
-        filtered_routes = sum(1 for _ in filter(lambda whitelist_route_item: re.match(whitelist_route_item, uri), config.whitelist_routes_regex)) > 0 or sum(1 for _ in filter(lambda whitelist_route_item: uri == whitelist_route_item, config.filter_by_route)) > 0
         enforced_route = sum(1 for _ in filter(lambda enforced_route_item: re.match(enforced_route_item, uri), config.enforced_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda enforced_route_item: uri == enforced_route_item, config.enforced_specific_routes)) > 0
         monitored_route = sum(1 for _ in filter(lambda monitored_route_item: re.match(monitored_route_item, uri), config.monitored_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda monitored_route_item: uri == monitored_route_item, config.monitored_specific_routes)) > 0
 
@@ -90,7 +91,7 @@ class PxContext(object):
         self._uuid = ''
         self._query_params = request.query_string.decode("utf-8")
         self._sensitive_route = sensitive_route
-        self._filtered_route = filtered_routes
+        self._filtered_route = is_filtered
         self._enforced_route = enforced_route
         self._monitored_route = monitored_route
         self._s2s_call_reason = 'none'
@@ -511,10 +512,21 @@ class PxContext(object):
         self._is_monitor_request = is_monitor_request
 
 
-
 def generate_context_headers(request_headers, sensitive_headers):
     headers = CaseInsensitiveDict()
     for header_name, header_value in request_headers:
         if header_name.lower() not in sensitive_headers:
             headers[header_name] = header_value
     return headers
+
+
+def is_filtered_request(config, request):
+    if sum(1 for _ in filter(lambda whitelist_route_item: re.match(whitelist_route_item, request.path), config.whitelist_routes_regex)) > 0 or \
+           sum(1 for _ in filter(lambda whitelist_route_item: request.path == whitelist_route_item, config.filter_by_route)) > 0:
+        return True
+    if config.filter_by_custom_function:
+        try:
+            return config.filter_by_custom_function(request)
+        except Exception as ex:
+            config.logger.debug(f"exception in px_filter_by_custom_function: {ex}")
+    return False

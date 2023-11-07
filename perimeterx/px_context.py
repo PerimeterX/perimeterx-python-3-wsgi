@@ -1,5 +1,6 @@
 import re
 import uuid
+from urllib.parse import unquote, urlparse
 
 from requests.structures import CaseInsensitiveDict
 
@@ -49,20 +50,29 @@ class PxContext(object):
             px_cookies[cookie_name] = cookie
 
         user_agent = request.user_agent.string
-        uri = request.path
-        full_url = request.url
+
+        http_protocol = None
+        protocol_split = request.environ.get('SERVER_PROTOCOL', '').split('/')
+        if protocol_split[0].startswith('HTTP'):
+            http_protocol = protocol_split[0].lower() + '://'
+        if len(protocol_split) > 1:
+            http_version = protocol_split[1]
+
+        if config.url_decode_reserved_characters:
+            query = request.query_string.decode()
+            full_url = f"{http_protocol if http_protocol else protocol_split[0]}{request.host}{request.path}{'' if not query else '?' + query}"
+            uri = urlparse(full_url).path
+        else:
+            uri = request.path
+            full_url = request.url
         hostname = request.host
         sensitive_route = sum(1 for _ in filter(lambda sensitive_route_item: re.match(sensitive_route_item, uri), config.sensitive_routes_regex)) > 0 or sum(1 for _ in filter(lambda sensitive_route_item: uri == sensitive_route_item, config.sensitive_routes)) > 0
         filtered_routes = sum(1 for _ in filter(lambda whitelist_route_item: re.match(whitelist_route_item, uri), config.whitelist_routes_regex)) > 0 or sum(1 for _ in filter(lambda whitelist_route_item: uri == whitelist_route_item, config.filter_by_route)) > 0
         enforced_route = sum(1 for _ in filter(lambda enforced_route_item: re.match(enforced_route_item, uri), config.enforced_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda enforced_route_item: uri == enforced_route_item, config.enforced_specific_routes)) > 0
         monitored_route = sum(1 for _ in filter(lambda monitored_route_item: re.match(monitored_route_item, uri), config.monitored_specific_routes_regex)) > 0 or sum(1 for _ in filter(lambda monitored_route_item: uri == monitored_route_item, config.monitored_specific_routes)) > 0
 
-        protocol_split = request.environ.get('SERVER_PROTOCOL', '').split('/')
-        if protocol_split[0].startswith('HTTP'):
-            self._http_protocol = protocol_split[0].lower() + '://'
-        if len(protocol_split) > 1:
-            self._http_version = protocol_split[1]
-
+        self._http_protocol = http_protocol
+        self._http_version = http_version
         self._headers = headers
         self._http_method = request.environ.get('REQUEST_METHOD')
         self._user_agent = user_agent

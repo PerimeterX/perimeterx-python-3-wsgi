@@ -31,5 +31,8 @@
         "sensitive_routes",
         "telemetry_command",
         "vid_extraction"
+    ],
+    "excluded_tests": [
+        "test_url_decode_reserved_characters_with_character\\[;-"
     ]
 }

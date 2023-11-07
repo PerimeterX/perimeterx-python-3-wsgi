@@ -35,6 +35,7 @@ class PxConfig(object):
         self._proxy_url = config_dict.get('px_proxy_url', None)
         self._bypass_monitor_header = config_dict.get('px_bypass_monitor_header','')
         self._max_buffer_len = max_buffer_len if max_buffer_len > 0 else 1
+        self._url_decode_reserved_characters = config_dict.get('px_url_decode_reserved_characters', False)
 
         sensitive_routes = config_dict.get('px_sensitive_routes', [])
         if not isinstance(sensitive_routes, list):
@@ -235,6 +236,10 @@ class PxConfig(object):
     @property
     def monitored_specific_routes_regex(self):
         return self._monitored_specific_routes_regex
+
+    @property
+    def url_decode_reserved_characters(self):
+        return self._url_decode_reserved_characters
 
     def __instantiate_user_defined_handlers(self, config_dict):
         self._custom_verification_handler = self.__set_handler('px_custom_verification_handler', config_dict)

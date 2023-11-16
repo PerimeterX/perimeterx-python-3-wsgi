@@ -53,6 +53,8 @@ def send_to_perimeterx(activity_type, ctx, config, detail):
             'client_uuid': ctx.uuid,
             'request_id': ctx.request_id
         }
+        if ctx.raw_url:
+            _details['raw_url'] = ctx.raw_url
 
         if len(detail.keys()) > 0:
             _details = dict(list(_details.items()) + list(detail.items()))

@@ -66,6 +66,8 @@ class PxContext(object):
         else:
             uri = request.path
             full_url = request.url
+
+        raw_url = request.url if request.url != full_url else None
         hostname = request.host
         is_filtered = is_filtered_request(config, request)
         sensitive_route = sum(1 for _ in filter(lambda sensitive_route_item: re.match(sensitive_route_item, uri), config.sensitive_routes_regex)) > 0 or sum(1 for _ in filter(lambda sensitive_route_item: uri == sensitive_route_item, config.sensitive_routes)) > 0
@@ -79,6 +81,7 @@ class PxContext(object):
         self._user_agent = user_agent
         self._full_url = full_url
         self._uri = uri
+        self._raw_url = raw_url
         self._hostname = hostname
         self._px_cookies = px_cookies
         self._cookie_names = request_cookie_names
@@ -214,6 +217,14 @@ class PxContext(object):
     @uri.setter
     def uri(self, uri):
         self._uri = uri
+
+    @property
+    def raw_url(self):
+        return self._raw_url
+
+    @raw_url.setter
+    def raw_url(self, raw_url):
+        self._raw_url = raw_url
 
     @property
     def hostname(self):

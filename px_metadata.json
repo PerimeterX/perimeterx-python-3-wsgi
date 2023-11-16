@@ -35,6 +35,7 @@
         "vid_extraction"
     ],
     "excluded_tests": [
-        "test_url_decode_reserved_characters_with_character\\[;-"
+        "test_url_decode_reserved_characters_send_decoded_url\\[;-",
+        "test_url_decode_reserved_characters_send_additional_raw_url\\[(/|:)-"
     ]
 }

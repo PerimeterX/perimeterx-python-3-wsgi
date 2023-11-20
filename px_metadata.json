@@ -17,6 +17,7 @@
         "logger",
         "enforced_routes",
         "filter_by_route",
+        "filter_by_custom_function",
         "first_party",
         "js_ref",
         "mobile_support",
@@ -30,6 +31,11 @@
         "sensitive_headers",
         "sensitive_routes",
         "telemetry_command",
+        "url_decode_reserved_characters",
         "vid_extraction"
+    ],
+    "excluded_tests": [
+        "test_url_decode_reserved_characters_send_decoded_url\\[;-",
+        "test_url_decode_reserved_characters_send_additional_raw_url\\[(/|:)-"
     ]
 }

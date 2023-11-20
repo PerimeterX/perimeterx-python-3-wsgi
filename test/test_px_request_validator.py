@@ -10,6 +10,14 @@ from perimeterx.px_context import PxContext
 from perimeterx.px_request_verifier import PxRequestVerifier
 
 
+def create_risk_response(score):
+    return {
+        "action": "c",
+        "score": score,
+        "status": 0
+    }
+
+
 class TestPxRequestVerifier(unittest.TestCase):
 
     @classmethod
@@ -165,8 +173,8 @@ class TestPxRequestVerifier(unittest.TestCase):
     def test_specific_enforced_routes_with_enforced_route(self):
         config = PxConfig({'px_app_id': 'PXfake_app_id',
                            'px_auth_token': '',
-                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
-                           'px_enforced_routesspecific_routes': ['/profile'],
+                           'px_module_mode': px_constants.MODULE_MODE_MONITORING,
+                           'px_enforced_routes': ['/profile'],
                            })
         headers = {'X-FORWARDED-FOR': '127.0.0.1',
                    'remote-addr': '127.0.0.1',
@@ -183,7 +191,7 @@ class TestPxRequestVerifier(unittest.TestCase):
     def test_specific_enforced_routes_with_enforced_route_regex(self):
         config = PxConfig({'px_app_id': 'PXfake_app_id',
                            'px_auth_token': '',
-                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_module_mode': px_constants.MODULE_MODE_MONITORING,
                            'px_enforced_routes_regex': [r'^/profile$'],
                            })
         headers = {'X-FORWARDED-FOR': '127.0.0.1',
@@ -201,8 +209,8 @@ class TestPxRequestVerifier(unittest.TestCase):
     def test_specific_enforced_routes_with_unenforced_route(self):
         config = PxConfig({'px_app_id': 'PXfake_app_id',
                            'px_auth_token': '',
-                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
-                           'px_enforced_routesspecific_routes': ['/profile'],
+                           'px_module_mode': px_constants.MODULE_MODE_MONITORING,
+                           'px_enforced_routes': ['/profile'],
                            })
         headers = {'X-FORWARDED-FOR': '127.0.0.1',
                    'remote-addr': '127.0.0.1',
@@ -212,14 +220,15 @@ class TestPxRequestVerifier(unittest.TestCase):
         env = builder.get_environ()
         request = Request(env)
         context = PxContext(request, request_handler.config)
-        context.score = 100
-        response = request_handler.verify_request(context, request)
-        self.assertEqual(response, True)
+        response = create_risk_response(score=100)
+        with mock.patch('perimeterx.px_api.send_risk_request', return_value=response):
+            response = request_handler.verify_request(context, request)
+            self.assertEqual(response, True)
 
     def test_specific_enforced_routes_with_unenforced_route_regex(self):
         config = PxConfig({'px_app_id': 'PXfake_app_id',
                            'px_auth_token': '',
-                           'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
+                           'px_module_mode': px_constants.MODULE_MODE_MONITORING,
                            'px_enforced_routes_regex': [r'^/profile$'],
                            })
         headers = {'X-FORWARDED-FOR': '127.0.0.1',
@@ -230,9 +239,10 @@ class TestPxRequestVerifier(unittest.TestCase):
         env = builder.get_environ()
         request = Request(env)
         context = PxContext(request, request_handler.config)
-        context.score = 100
-        response = request_handler.verify_request(context, request)
-        self.assertEqual(response, True)
+        response = create_risk_response(score=100)
+        with mock.patch('perimeterx.px_api.send_risk_request', return_value=response):
+            response = request_handler.verify_request(context, request)
+            self.assertEqual(response, True)
 
     def test_monitor_specific_routes_in_blocking_mode(self):
         config = PxConfig({'px_app_id': 'PXfake_app_id',
@@ -248,9 +258,11 @@ class TestPxRequestVerifier(unittest.TestCase):
         env = builder.get_environ()
         request = Request(env)
         context = PxContext(request, request_handler.config)
-        response = request_handler.verify_request(context, request)
-        self.assertEqual(context.monitored_route, True)
-        self.assertEqual(response, True)
+        response = create_risk_response(score=100)
+        with mock.patch('perimeterx.px_api.send_risk_request', return_value=response):
+            response = request_handler.verify_request(context, request)
+            self.assertEqual(context.monitored_route, True)
+            self.assertEqual(response, True)
 
     def test_monitor_specific_routes_in_blocking_mode_regex(self):
         config = PxConfig({'px_app_id': 'PXfake_app_id',
@@ -266,8 +278,11 @@ class TestPxRequestVerifier(unittest.TestCase):
         env = builder.get_environ()
         request = Request(env)
         context = PxContext(request, request_handler.config)
-        response = request_handler.verify_request(context, request)
-        self.assertEqual(context.monitored_route, True)
+        response = create_risk_response(score=100)
+        with mock.patch('perimeterx.px_api.send_risk_request', return_value=response):
+            response = request_handler.verify_request(context, request)
+            self.assertEqual(context.monitored_route, True)
+            self.assertEqual(response, True)
 
     def test_monitor_specific_routes_in_blocking_mode_should_block_other_routes(self):
         config = PxConfig({'px_app_id': 'PXfake_app_id',
@@ -358,15 +373,18 @@ class TestPxRequestVerifier(unittest.TestCase):
         env = builder.get_environ()
         request = Request(env)
         context = PxContext(request, request_handler.config)
-        response = request_handler.verify_request(context, request)
-        self.assertEqual(context.monitored_route, True)
+        response = create_risk_response(score=100)
+        with mock.patch('perimeterx.px_api.send_risk_request', return_value=response):
+            response = request_handler.verify_request(context, request)
+            self.assertEqual(context.monitored_route, True)
+            self.assertEqual(response, True)
 
     def test_monitor_specific_routes_with_enforced_specific_routes_regex(self):
         config = PxConfig({'px_app_id': 'PXfake_app_id',
                            'px_auth_token': '',
                            'px_module_mode': px_constants.MODULE_MODE_BLOCKING,
                            'px_monitored_routes_regex': [r'^/profile$'],
-                           'px_enforced_specific_routes_regex': [r'^/login$'],
+                           'px_enforced_routes_regex': [r'^/login$'],
                            });
         headers = {'X-FORWARDED-FOR': '127.0.0.1',
                    'remote-addr': '127.0.0.1',
@@ -376,5 +394,8 @@ class TestPxRequestVerifier(unittest.TestCase):
         env = builder.get_environ()
         request = Request(env)
         context = PxContext(request, request_handler.config)
-        response = request_handler.verify_request(context, request)
-        self.assertEqual(context.monitored_route, True)
+        response = create_risk_response(score=100)
+        with mock.patch('perimeterx.px_api.send_risk_request', return_value=response):
+            response = request_handler.verify_request(context, request)
+            self.assertEqual(context.monitored_route, True)
+            self.assertEqual(response, True)

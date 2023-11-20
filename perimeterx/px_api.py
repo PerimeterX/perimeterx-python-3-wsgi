@@ -229,6 +229,9 @@ def prepare_risk_body(ctx, config):
         logger.debug('attaching px_cookie to request')
         body['additional']['px_cookie'] = ctx.decoded_cookie
 
+    if ctx.raw_url:
+        body['additional']['raw_url'] = ctx.raw_url
+
     return body
 
 
